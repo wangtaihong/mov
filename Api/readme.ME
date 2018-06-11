@@ -1,0 +1,10 @@
+# Virtual Host configuration for myflask.local
+server {
+    listen 80;
+    server_name myflask.local;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/jon/root/py/flaskapp/predict.sock;
+    }
+}

@@ -1,0 +1,15 @@
+# /etc/systemd/system
+
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/home/jon/root/py/flaskapp
+Environment="PATH=/home/jon/root/py/flaskapp/venv/bin"
+ExecStart=/home/jon/root/py/flaskapp/venv/bin/uwsgi --ini predict.ini
+
+[Install]
+WantedBy=multi-user.target
