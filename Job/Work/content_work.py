@@ -62,6 +62,10 @@ class ContentJob(object):
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]["_id"],task)
 
+        ct = check_title(task['contentName'])
+        if ct:
+            return self.after_search_failed(task,category=ct)
+
         if task.get("actor") and task.get("director"):
             #信息全的走mongodb匹配，mongo没有的接着走百度搜索引擎
             print("task:--contentName:%s---contentType:%s---director:%s---actor:%s---area:%s-"%(task.get("contentName"),task.get("contentType"),task.get("director"),task.get("actor"),task.get("area")))
@@ -129,8 +133,12 @@ class ContentJob(object):
             print(result)
         return self.callback(data=c[0],task=task)
 
-    def after_search_failed(self,task):
-        return None
+    def after_search_failed(self,task,category=None):
+        if not category:
+            """测试阶段先返回，以后正式了要保存的"""
+            task['category'] = None
+            return None
+        task['category'] = category
         data = self.save_task_tocontents(task)
         return self.callback(data=data,task=task)
 

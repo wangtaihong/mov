@@ -1,7 +1,7 @@
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin https://github.com/wangtaihong/zydata.git
+git remote add origin https://github.com/wangtaihong/mov.git
 git push -u origin master
 
 
@@ -29,3 +29,7 @@ cat myfile | redis-cli -x restore mynewkey 0
 myfile内容导入到mynewkey  数据库0
 
 pip install setuptools cffi 'cython>=0.28' git+git://github.com/gevent/gevent.git#egg=gevent
+
+
+
+redis-server.exe redis.windows.conf

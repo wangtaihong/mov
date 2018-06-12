@@ -64,13 +64,14 @@ class ContentJob(object):
         if task.get("name")==None or task.get("name")=="":
             pass
 
-        ct = check_title(task['name'])
-        if ct:
-            return self.after_search_failed(task,category=ct)
         #测试,先屏蔽了
         r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code")}}})
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]['_id'],task)
+
+        ct = check_title(task['name'])
+        if ct:
+            return self.after_search_failed(task,category=ct)
 
         if task.get("actor") and task.get("director"):
             #信息全的走mongodb匹配，mongo没有的接着走百度搜索引擎
@@ -135,6 +136,8 @@ class ContentJob(object):
 
     def after_search_failed(self,task,category=None):
         if not category:
+            """测试阶段先返回，以后正式了要保存的"""
+            task['category'] = None
             return None
         task['category'] = category
         print("((((((((((((((((((((((((((((((((((((((((")

@@ -25,6 +25,7 @@ from sqlalchemy.orm import scoped_session
 import hashlib
 import jieba
 from DB.RedisClient import rd, rpop
+from DB.MongodbClient import mongo_conn
 from Utils.download_file import DownloadFile
 from Utils.utils import parse_regx_char, area_process
 
@@ -38,17 +39,17 @@ class Merge(object):
     def __init__(self, **arg):
         # super(Merge, self).__init__()
         # self.arg = arg
-        self.mongo_conn = MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata
-        self.mongo_youku_videos = self.mongo_conn.youku_videos
-        self.mongo_youku_star = self.mongo_conn.youku_star
-        self.mongo_letv_tvs = self.mongo_conn.letv_tvs
-        self.mongo_letv_stars = self.mongo_conn.letv_stars
-        self.mongo_douban_tvs = self.mongo_conn.douban_tvs
-        self.mongo_douban_stars = self.mongo_conn.douban_stars
-        self.mongo_stars = self.mongo_conn.stars
-        self.mongo_contents = self.mongo_conn.contents
-        self.mongo_posters = self.mongo_conn.posters
-        self.mongo_categories = self.mongo_conn.categories
+        # self.mongo_conn = MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata
+        self.mongo_youku_videos = mongo_conn.youku_videos
+        self.mongo_youku_star = mongo_conn.youku_star
+        self.mongo_letv_tvs = mongo_conn.letv_tvs
+        self.mongo_letv_stars = mongo_conn.letv_stars
+        self.mongo_douban_tvs = mongo_conn.douban_tvs
+        self.mongo_douban_stars = mongo_conn.douban_stars
+        self.mongo_stars = mongo_conn.stars
+        self.mongo_contents = mongo_conn.contents
+        self.mongo_posters = mongo_conn.posters
+        self.mongo_categories = mongo_conn.categories
         self.able_rating = 0.9
         self.letv_language = {"70001":"国语","70002":"粤语","70003":"英语","70006":"法语","70010":"泰语","70009":"德语","70007":"意大利语","70008":"西班牙语","70004":"日语","70008":"韩语","70000":"其他","70005":"韩语"}
         self.categories = set(["剧集","电影","综艺","动漫","少儿","音乐","教育","纪实","体育","文化","娱乐","游戏","资讯","搞笑","生活","汽车","科技","时尚","亲子","旅游","微电影","网剧","拍客","创意视频","自拍","广告","VR","纪录片","短片","电影","动漫","综艺","纪录片","娱乐","亲子","体育","音乐","风尚","财经","汽车","旅游","热点","教育",'资讯',"全景"])
@@ -929,6 +930,7 @@ def fixyoukuid():
                 if item.get("directors")==None:
                     result = mongo_youku_videos.update({'_id': item['_id']}, {'$set': {"directors": directors.strip(',')}}, False, True)
 def clean():
+    """清洗格式"""
     mongo_contents = MongoClient(
         config.MONGO_HOST, config.MONGO_PORT).zydata.contents
     count = mongo_contents.count()
@@ -980,6 +982,32 @@ def fixletv():
             print("done ",result.modified_count,starring_list)
             print(item.get("name"))
 
+def merge_douban_repeat_content():
+    """合并contents中重复的豆瓣数据,注意保持关联关系"""
+    repeat = mongo_conn.contents.aggregate([{"$group" : { "_id": "$doubanid", "count": { "$sum": 1 } } },
+    {"$match": {"_id" :{ "$ne" : None } , "count" : {"$gt": 1} } }, 
+    {"$project": {"doubanid" : "$_id", "_id" : 0} }])
+
+    # repeat = mongo_conn.contents.aggregate([{"$group" : { "_id": "$doubanid", "count": { "$sum": 1 }} },
+    # {"$match": {"_id" :{ "$ne" : None } , "count" : {"$gt": 1} } }, 
+    # {"$project": {"doubanid" : "$_id", "_id" : 0} },{"$count": "repeat"}])
+    print(repeat)
+    for item in repeat:
+        recrodes = mongo_conn.contents.find({"doubanid":item['doubanid']})
+        if recrodes.count() > 1:
+            relationship = []
+            mediaId = []
+            _id = []
+            for x in recrodes:
+                _id.append(x['_id'])
+                if x.get("relationship"):
+                    for rs in x.get("relationship"):
+                        if not rs['mediaId'] in mediaId:
+                            mediaId.append(rs['mediaId'])
+                            relationship.append(rs)
+            if len(relationship) > 0:
+                pass
+
 if __name__ == '__main__':
     '''
     数据带上目标网站来源id.
@@ -1006,7 +1034,7 @@ if __name__ == '__main__':
     # merge()
     # fixyoukuid()
     # fixletv()
-    clean()
+    # clean()
     # m = Merge()
     # m.merge_star()
     # m.merge_youkustar()
@@ -1016,6 +1044,7 @@ if __name__ == '__main__':
     # m.merge_letvvideo()
     # m.merge_youku_videos()
 
+    merge_douban_repeat_content()
 
     # m.categories()  #清洗categories
     print(time.time()-t)

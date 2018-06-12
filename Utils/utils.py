@@ -127,9 +127,10 @@ def mictime_to_ymd(mtime):
     return time.strftime('%Y-%m-%d', time.localtime(mtime/1000))
 
 def search_preprocess(doc):
-    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版',u'\@芒果', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', u'(热剧\w*\d*)',u'(影讯\w*\d*)',
+    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版',u'(@[\u4e00-\u9fa5]*)', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', 
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
                    u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
+                   u'(热剧\w*\d*)',u'(影讯\w*\d*)',
                    u'(第.{1,}集)', "-", u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-'])
     ji = re.search(u'(第(.{1})季)', doc)
     bu = re.search(u'(第(.{1})部)', doc)
@@ -153,11 +154,31 @@ def check_title(title):
     if len(title)>13:
         if u'新闻' in title:
             return u'新闻'
-        if u'财闻' in title:
+        elif u'财闻' in title:
             return u'财经'
-        if u'娱闻' in title:
+        elif u'娱闻' in title or u'八卦' in title:
             return u'娱乐'
-        if u'八卦' in title:
-            return u'娱乐'
+        elif u'影讯' in title:
+            return u'新闻'
+        elif u'生活' in title and re.search(u'(\d{5,})',title):
+            return u'生活'
+        elif u'音乐' in title and re.search(u'(\d{5,})',title):
+            return u'音乐'
+        elif u'新东方' in title or u'初中' in title or u'高中' in title or u'高一' in title or u'高二' in title:
+            return u'教育'
+        elif u'军事' in title:
+            return u'军事'
+        elif u'纪实' in title:
+            return u'纪实'
+        elif u'音乐' in title or u'MV' in title or u'演唱会' in title:
+            return u'音乐'
+        elif u'世界杯' in title or u'体育' or u'NBA' or u'奥运' in title or u'马术' in title:
+            return u'体育'
+        elif u'直播室' in title or u'演播室' or u'专题' in title:
+            return u'新闻'
+        elif re.search(u'(\d{5,})',title):
+            return u'新闻'
+        else:
+            return None
     else:
         return None
