@@ -27,7 +27,7 @@ import jieba
 from DB.RedisClient import rd, rpop
 from DB.MongodbClient import mongo_conn
 from Utils.download_file import DownloadFile
-from Utils.utils import parse_regx_char, area_process
+from Utils.utils import parse_regx_char, area_process, split_space, parse_simple
 
 # md5 = hashlib.md5()
 # md5.update('how to use md5 in python hashlib?')
@@ -991,22 +991,72 @@ def merge_douban_repeat_content():
     # repeat = mongo_conn.contents.aggregate([{"$group" : { "_id": "$doubanid", "count": { "$sum": 1 }} },
     # {"$match": {"_id" :{ "$ne" : None } , "count" : {"$gt": 1} } }, 
     # {"$project": {"doubanid" : "$_id", "_id" : 0} },{"$count": "repeat"}])
-    print(repeat)
     for item in repeat:
+        print(item['doubanid'])
         recrodes = mongo_conn.contents.find({"doubanid":item['doubanid']})
         if recrodes.count() > 1:
             relationship = []
             mediaId = []
             _id = []
+            print("0",recrodes[0]["_id"])
             for x in recrodes:
                 _id.append(x['_id'])
                 if x.get("relationship"):
                     for rs in x.get("relationship"):
-                        if not rs['mediaId'] in mediaId:
-                            mediaId.append(rs['mediaId'])
+                        if not "".join([rs['mediaId'],rs['platform']]) in mediaId:
+                            mediaId.append("".join([rs['mediaId'],rs['platform']]))
                             relationship.append(rs)
+                if len(_id) > 1:
+                    print("rm",x['_id'])
+                    mongo_conn.contents.remove({"_id":x['_id']})
             if len(relationship) > 0:
-                pass
+                print(_id[0])
+                result = mongo_conn.contents.update_one({"_id":_id[0]},{"$set":{"relationship":relationship}})
+
+def merge_iqiyi_repeat_content():
+    """合并contents中重复的aiqiyi数据,注意保持关联关系"""
+    repeat = mongo_conn.contents.aggregate([{"$group" : { "_id": "$iqiyi_tvId", "count": { "$sum": 1 } } },
+    {"$match": {"_id" :{ "$ne" : None } , "count" : {"$gt": 1} } }, 
+    {"$project": {"iqiyi_tvId" : "$_id", "_id" : 0} }])
+
+    for item in repeat:
+        recrodes = mongo_conn.contents.find({"iqiyi_tvId":item['iqiyi_tvId']})
+        print(recrodes,recrodes.count(),item)
+        if recrodes.count() > 1:
+            relationship = []
+            mediaId = []
+            _id = []
+            print("0",recrodes[0]["_id"])
+            for x in recrodes:
+                _id.append(x['_id'])
+                if x.get("relationship"):
+                    for rs in x.get("relationship"):
+                        if not "".join([rs['mediaId'],rs['platform']]) in mediaId:
+                            mediaId.append("".join([rs['mediaId'],rs['platform']]))
+                            relationship.append(rs)
+                if len(_id) > 1:
+                    print("rm",x['_id'])
+                    mongo_conn.contents.remove({"_id":x['_id']})
+            if len(relationship) > 0:
+                print(_id[0])
+                result = mongo_conn.contents.update_one({"_id":_id[0]},{"$set":{"relationship":relationship}})
+
+def merge_douban_tags():
+    """修复豆瓣tags,"""
+    contents = mongo_conn.contents.find({"doubanid":{"$exists":True},"tags":""})
+    zydata = MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata
+    for item in contents:
+        zc = zydata.contents.find({"doubanid":item['doubanid']})
+        print(item['_id'],item['doubanid'],zc.count(),zc)
+        if zc and zc.count() > 0:
+            tags = []
+            for x in zc:
+                if x.get("tags"):
+                    tags+=split_space(x['tags'].replace("/",",")).split(',')
+                if x.get("type"):
+                    tags+=split_space(x['type'].replace("/",",")).split(',')
+            if tags:
+                mongo_conn.contents.update_one({"_id":item['_id']},{"$set":{"tags":",".join(set(tags))}})
 
 if __name__ == '__main__':
     '''
@@ -1044,7 +1094,9 @@ if __name__ == '__main__':
     # m.merge_letvvideo()
     # m.merge_youku_videos()
 
-    merge_douban_repeat_content()
+    # merge_douban_repeat_content()
+    # merge_douban_tags()
+    merge_iqiyi_repeat_content()
 
     # m.categories()  #清洗categories
     print(time.time()-t)

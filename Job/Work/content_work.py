@@ -23,7 +23,7 @@ sys.path.append('./')
 import Levenshtein as lst
 from DB import mysql_session, Vod
 from Utils.request import requests_get, requests_post
-from Utils.utils import parse_regx_char, area_process, title_preprocess, title_preprocess_seed, process_actor, search_preprocess
+from Utils.utils import parse_regx_char, area_process, title_preprocess, title_preprocess_seed, process_actor, search_preprocess, check_title
 from DB.RedisClient import rd, rpop
 from DB.MongodbClient import mongo_conn
 # from pymongo import MongoClient
@@ -36,21 +36,34 @@ class ContentJob(object):
 
     def job(self):
         '''后台job'''
-        print("go")
-        total = 0
+        print("go job")
         while True:
             '''监听task'''
-            p = rd.spop(config.content_work_task_failed)
+            p = rd.spop(config.content_work_task)
             if p==None:
+                self.failed_job()
+                time.sleep(6)
                 continue
             task = json.loads(p)
             if task.get("contentName") == None:
                 continue
-            total += 1
-            print('***********************%s************************'%total)
             r = self.process(task)
             if not r:
-                rd.sadd(config.content_work_task,p)
+                rd.sadd(config.content_work_task_failed,p)
+
+    def failed_job(self):
+        print("go failed_job")
+        while True:
+            '''监听task'''
+            p = rd.spop(config.content_work_task_failed)
+            if p==None:
+                return True
+            task = json.loads(p)
+            if task.get("contentName") == None:
+                continue
+            r = self.process(task)
+            if not r:
+                rd.sadd(config.content_work_task_failed,p)
 
     def process(self,task=None):
         '''处理job task'''
@@ -58,7 +71,7 @@ class ContentJob(object):
             pass
 
         #测试,先屏蔽了
-        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("mediaId")}}})
+        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("mediaId"),"platform":"gs"}}})
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]["_id"],task)
 
@@ -137,8 +150,9 @@ class ContentJob(object):
         if not category:
             """测试阶段先返回，以后正式了要保存的"""
             task['category'] = None
-            return None
+            # return None
         task['category'] = category
+        return False
         data = self.save_task_tocontents(task)
         return self.callback(data=data,task=task)
 
@@ -163,9 +177,9 @@ class ContentJob(object):
         '''回掉给数据'''
         r = self.parse_cmscontent_field(dic=data,task=task)
         print(json.dumps(r))
-        rc = requests_post(url=self.callback_url,data=json.dumps(r),headers={"Content-Type":"application/json"})
+        rc = requests_post(url=task.get("redirectURL"),data=json.dumps(r),headers={"Content-Type":"application/json"})
         print("rcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrc",rc)
-        if not rc:
+        if rc != '0':
         	return None
         else:
             return rc

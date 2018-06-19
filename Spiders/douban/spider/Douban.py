@@ -28,8 +28,13 @@ class Douban(object):
         self.star_url = u'https://movie.douban.com/celebrity/{id}/'
 
     def crawl(self,urls):
-        m = re.search(u'movie\.douban\.com/subje',urls['r_url'])
+        # m = re.search(u'movie\.douban\.com/subje',urls['r_url'])
+        m = re.search(u'douban\.com/subje',urls['url'])
         url = urls["url"]
+        if not m:
+            iid = re.search(u'(\d{5,})',urls['url'])
+            if iid:
+                url = u'https://movie.douban.com/subject/{}/'.format(iid.group(1))
         # if m:
         # 	r = requests_get(url=url,headers=headers)
         # 	url = self.parsers.detail_url_parser(r)

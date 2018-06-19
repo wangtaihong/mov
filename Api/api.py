@@ -9,6 +9,10 @@ app.debug = True
 def hello():
     return "Hello World!"
 
+# @app.route("/")
+# def home():
+#     return "Hello World! -_-"
+
 @app.route('/api/put_task', methods=['POST'])
 def put_task():
     # im = request.files['im'].stream.read()
@@ -18,7 +22,6 @@ def put_task():
 
 @app.route('/api/content/<_id>')
 def get_content(_id):
-    print(_id)
     r = content.get(_id)
     return jsonify(r)
 
@@ -27,5 +30,5 @@ def get_categories():
     r = categories.get()
     return jsonify(r)
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+# if __name__ == "__main__":
+#     app.run(host='0.0.0.0')

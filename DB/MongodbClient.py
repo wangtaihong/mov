@@ -7,7 +7,7 @@ sys.path.append('../')
 import config
 sys.path.append('./')
 
-# mongo_conn = pymongo.MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata
+mongo_zydata = pymongo.MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata
 mongo_conn = pymongo.MongoClient(config.MONGO_HOST, config.MONGO_PORT).test123
 mongo = pymongo.MongoClient(config.MONGO_HOST, config.MONGO_PORT)
 

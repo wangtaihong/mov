@@ -27,7 +27,7 @@ def parse_regx_char(doc):
     return doc.replace(".", '\.').replace("+", "\+").replace("(", "\(").replace(")", "\)").replace("[", "\[").replace("]", '\]').replace('|', '\|').replace("?", "\?").replace("*", "\*")
 
 def title_preprocess(doc):
-    chars_replace = set([u"会员抢先看", u"未删减版", u"原声版", u"会员版", u"预告片", u"英语版", u"粤语版", u"TV版", u'标清', u'HD', u"高清", u'DVD版',
+    chars_replace = set([u"会员抢先看", u"未删减版",u'独享版',u'精彩看点', u"原声版", u"会员版", u"预告片", u"英语版", u"粤语版", u"TV版", u'标清', u'HD', u"高清", u'DVD版',
                      u'超清', u'影讯'])
     chars_resub = set([u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'(国语版\w*)',
                        u'\d{2}版', u'(原声版\w*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})', u'(第.{1}集)'])
@@ -49,7 +49,7 @@ def title_preprocess(doc):
 
 
 def title_preprocess_seed(doc):
-    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', u'(热剧\w*\d*)',u'(影讯\w*\d*)',
+    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版',u'独享版',u'精彩看点', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', u'(热剧\w*\d*)',u'(影讯\w*\d*)',
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
                    u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
                    u'(第.{1}集)', "-", u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-'])
@@ -59,6 +59,18 @@ def title_preprocess_seed(doc):
         doc = doc.replace(ji.group(1), ji.group(2))
     if bu:
         doc = doc.replace(bu.group(1), bu.group(2))
+    for c in chars_resub:
+        doc = re.sub(c, '', doc)
+    '''中英文翻译的  留下中文'''
+    if re.search(u'^[\u4e00-\u9fa5]', doc):
+        doc = re.sub(u'( [A-Za-z]*)', '', doc)
+    return doc.strip(' ').replace(' ', "")
+
+def title_preprocess_mongosearch(doc):
+    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版',u'独享版',u'精彩看点', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', u'(热剧\w*\d*)',u'(影讯\w*\d*)',
+                   u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
+                   u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
+                   u'(第.{1}集)', "-", u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-',u'(第(.{1})季)',u'(第(.{1})部)'])
     for c in chars_resub:
         doc = re.sub(c, '', doc)
     '''中英文翻译的  留下中文'''
@@ -127,7 +139,7 @@ def mictime_to_ymd(mtime):
     return time.strftime('%Y-%m-%d', time.localtime(mtime/1000))
 
 def search_preprocess(doc):
-    chars_resub = set([u'(国语版\w*\d*)', u'\d{2}版',u'(@[\u4e00-\u9fa5]*)', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', 
+    chars_resub = set([u'(国语版\w*\d*)',u'独享版',u'精彩看点', u'\d{2}版',u'(@[\u4e00-\u9fa5]*)',u'(@.* )', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', 
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
                    u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
                    u'(热剧\w*\d*)',u'(影讯\w*\d*)',
@@ -151,31 +163,30 @@ def split_space(r):
     return ",".join(parse_simple(x) for x in r.split(','))
 
 def check_title(title):
-    if len(title)>13:
-        if u'新闻' in title:
-            return u'新闻'
-        elif u'财闻' in title:
+    regx_news = u'新闻|直播|演播|录播|专题|开幕|两会|联播|党委|民生|影讯|资讯|习近平|习主席|总书记|贯彻|国务院|实事|采访|高考|中考|学生|央视|卫视|电视台|记者|主播|宣传部|省委|国务院|市委'
+    regx_yule = u'娱闻|八卦|娱乐'
+    regx_music = u'音乐|MV|演唱会'
+    regx_edu = u'新东方|初中|高中|高一|高二|中学|数学|物理|教育|习题|古诗|数学|语文|方程|认读|拼音|教学|学习|舞蹈|练习|年级|化学|地理|奥数|高数|线性|曲线|圆周|乘法|除法'
+    regx_pe = u'世界杯|体育|NBA|奥运|马术|国足|库里|锦标赛|冰壶|击剑'
+    if  re.search(regx_news,title):
+        return u'新闻'
+    if re.search(regx_yule,title):
+        return u'娱乐'
+    if re.search(regx_edu,title):
+        return u'教育'
+    if re.search(regx_music,title):
+        return u'音乐'
+    if len(title)>=12:
+        if u'财闻' in title:
             return u'财经'
-        elif u'娱闻' in title or u'八卦' in title:
-            return u'娱乐'
-        elif u'影讯' in title:
-            return u'新闻'
-        elif u'生活' in title and re.search(u'(\d{5,})',title):
+        elif u'生活' in title:
             return u'生活'
-        elif u'音乐' in title and re.search(u'(\d{5,})',title):
-            return u'音乐'
-        elif u'新东方' in title or u'初中' in title or u'高中' in title or u'高一' in title or u'高二' in title:
-            return u'教育'
         elif u'军事' in title:
             return u'军事'
         elif u'纪实' in title:
             return u'纪实'
-        elif u'音乐' in title or u'MV' in title or u'演唱会' in title:
-            return u'音乐'
-        elif u'世界杯' in title or u'体育' or u'NBA' or u'奥运' in title or u'马术' in title:
+        elif re.search(regx_pe,title):
             return u'体育'
-        elif u'直播室' in title or u'演播室' or u'专题' in title:
-            return u'新闻'
         elif re.search(u'(\d{5,})',title):
             return u'新闻'
         else:

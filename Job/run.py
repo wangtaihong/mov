@@ -5,8 +5,8 @@
 # @Link    : 
 # @Version : $Id$
 
-from Work.content_work import ContentJob
 from gevent import monkey; monkey.patch_all()
+from Work.content_work import ContentJob
 import gevent
 
 import threading
@@ -23,7 +23,7 @@ def by_gevent():
         gevent.spawn(work, ),
     ])
 
-def by_threading_gevent(thr=8):
+def by_threading_gevent(thr=4):
     for i in range(thr):
         # t = threading.Thread(target = use_queue,args = (in_queue,))
         t = threading.Thread(target = by_gevent)

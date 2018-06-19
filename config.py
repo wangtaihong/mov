@@ -1,7 +1,7 @@
 # coding:utf-8
 
 # MYSQL_USER = 'root'
-# MYSQL_HOST = '192.168.2.133'
+# MYSQL_HOST = '192.168.2.30'
 # MYSQL_PORT = '3307'
 # MYSQL_PASSWORD = 'root'
 # MYSQL_DB = 'douban'
@@ -13,10 +13,15 @@ MYSQL_PASSWORD = 'appplat'
 MYSQL_DB = 'wechat_gd'
 
 
-RD_HOST = "192.168.2.133"
+RD_HOST = "192.168.2.30"
 RD_PASSWORD = 'aaaaaa'
 RD_PORT = "6379"
 RD_DB = "0"
+
+MONGO_HOST = '192.168.2.30'
+MONGO_PORT = 27017
+MONGO_DB = "test123"
+
 
 doubantv_tags = "doubantv_tags"
 doubantv_ajax_url = "doubantv_ajax_url"
@@ -83,24 +88,13 @@ le_star_failed = 'le_star_failed'
 
 PROXY_HOST = 'http://127.0.0.1:5010/'
 
-MONGO_HOST = '192.168.2.133'
-MONGO_PORT = 27017
-MONGO_DB = "test"
-
 content_work_task = 'content_work_task'
 content_work_task_failed = 'content_work_task_failed'
 
 
 gs_callback_url = u'http://192.168.2.177:8080/meta_job/cmsContent/update'   #甘肃项目数据回调地址
+sx_callback_url = u'http://192.168.2.177:8080/meta_job_sx/cmsContent/update'   #甘肃项目数据回调地址
 gd_task = 'gd_task'
 gd_task_bk = 'gd_task_bk'
+gd_task_bkbk = 'gd_task_bkbk'
 gd_task_failed = 'gd_task_failed'
-
-# MONGO_USER='root'
-# MONGO_PWD='Ershixiong2017'
-# MONGO_HOST='dds-wz9a0887410704642.mongodb.rds.aliyuncs.com'
-# MONGO_PORT=3717
-# MONGO_COLLECTION='dm_api_logs'
-# MONGO_NAME='ershixiong_anzhuang'
-# MONGO_CHARSET='utf8'
-# MONGO_URL='mongodb://root:Ershixiong2017@dds-wz9a0887410704642.mongodb.rds.aliyuncs.com:3717/ershixiong_anzhuang?authSource=admin'

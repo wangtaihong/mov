@@ -32,9 +32,9 @@ class GDCmscontent(Base):
                          comment='内容类型  100：普通点播 110：连续剧父集 120：连续剧子集')
     parent_code = Column(String(100), default=None,
                          comment='连续剧父集编号，如果不是连续剧子集则该字段为空')
-    director = Column(String(50), default=None, comment='导演')
+    director = Column(String(255), default=None, comment='导演')
     name = Column(String(255), default=None,)
-    actor = Column(String(200), default=None, comment='演员')
+    actor = Column(String(455), default=None, comment='演员')
     image_v = Column(String(255), default=None, comment='竖版海报')
     image_h = Column(String(255), default=None, comment='横版海报')
     image_s = Column(String(255), default=None, comment='方海报')

@@ -25,7 +25,6 @@ def put(message=None):
 	'''作业任务'''
 	if message:
 		rd.sadd(config.content_work_task,json.dumps(message))
-		print(config.content_work_task)
 		return {"status":"1","msg":u"success"}
 	else:
 		return {"status":"-1","msg":u"error,参数错误"}

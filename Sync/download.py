@@ -9,13 +9,14 @@ import threading
 import redis
 import requests
 from gevent import monkey; monkey.patch_all()
-import gevent
-import urllib2
+import gevent, sys
+sys.path.append('../')
+import config
+sys.path.append('./')
+from DB.RedisClient import rd
 
 path = u"E:/media/iptv_full2/"
-file_name = r'E:/img_increase_20180608.txt'
-
-rd = redis.Redis()
+file_name = r'E:/img_increase_20180615.txt'
 
 
 def process():
@@ -25,7 +26,7 @@ def process():
         IM = IM.replace('\n', "")
         data = IM.split(',')
         url = 'http://183.59.160.50:8082/EPG/jsp/images/universal/film/poster/' + data[3]
-        path = u"E:/posters_3/"+"/".join(data[3].split('/')[:-1])+"/"
+        path = u"E:/posters_4/"+"/".join(data[3].split('/')[:-1])+"/"
         try:
         	os.makedirs(path)
         except Exception as e:
@@ -48,7 +49,6 @@ def process():
         print("done", local_filename)
 
 
-
 def readfile():
     with open(file_name) as f:
         for line in f:
@@ -64,13 +64,6 @@ def requests_get(url):
         except Exception as e:
             retry -= 1
     return False
-
-
-def task():
-    for i in range(10):
-        t = threading.Thread(target=process)
-        # t.setDaemon(True)
-        t.start()
 
 def gevent_threading():
     for i in range(8):
@@ -90,5 +83,4 @@ def task_gevent():
 
 if __name__ == '__main__':
     readfile()
-    # task() #1231556
     gevent_threading()

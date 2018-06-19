@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2018-05-24 17:26:26
+# @Date    : 2018-06-14 17:26:58
 # @Author  : taihong (taihong.wang@androidmov.com)
 # @Link    : 
 # @Version : $Id$
 
 from gevent import monkey; monkey.patch_all()
-from Work.gd_work import ContentJob
+from Work.content_work import ContentJob
 import gevent
 
 import threading
+
 def work():
     job = ContentJob()
     job.job()
 
 def by_gevent():
     gevent.joinall([
-        gevent.spawn(work, ),
         gevent.spawn(work, ),
         gevent.spawn(work, ),
         gevent.spawn(work, ),
