@@ -23,6 +23,13 @@ MONGO_PORT = 27017
 MONGO_DB = "test123"
 
 
+gd_task = 'gd_task'
+gd_task_bk = 'gd_task_bk'
+gd_task_bkbk = 'gd_task_bkbk'
+gd_task_failed = 'gd_task_failed'
+
+
+
 doubantv_tags = "doubantv_tags"
 doubantv_ajax_url = "doubantv_ajax_url"
 doubantv_ajax_task = "doubantv_ajax_task"
@@ -90,11 +97,3 @@ PROXY_HOST = 'http://127.0.0.1:5010/'
 
 content_work_task = 'content_work_task'
 content_work_task_failed = 'content_work_task_failed'
-
-
-gs_callback_url = u'http://192.168.2.177:8080/meta_job/cmsContent/update'   #甘肃项目数据回调地址
-sx_callback_url = u'http://192.168.2.177:8080/meta_job_sx/cmsContent/update'   #甘肃项目数据回调地址
-gd_task = 'gd_task'
-gd_task_bk = 'gd_task_bk'
-gd_task_bkbk = 'gd_task_bkbk'
-gd_task_failed = 'gd_task_failed'
