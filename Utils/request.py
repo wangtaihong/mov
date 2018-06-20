@@ -14,7 +14,7 @@ sys.setdefaultencoding('utf8')
 import user_agent
 
 
-def requests_get(url, session = None,headers=None, data={}, timeout=40,cookies=None):
+def requests_get(url, session = None,headers=None, data={}, timeout=60,cookies=None):
     retry = 5
     print(url)
     if not headers:
@@ -68,7 +68,7 @@ def requests_get(url, session = None,headers=None, data={}, timeout=40,cookies=N
         retry -= 1
     return False
 
-def requests_post(url, session = None,headers=None, data=None, timeout=40,cookies=None):
+def requests_post(url, session = None,headers=None, data=None, timeout=60,cookies=None):
     retry = 5
     if not headers:
         headers = {}

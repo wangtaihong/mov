@@ -174,7 +174,10 @@ class BaiduParser(object):
 	@staticmethod
 	def parse_mid_tourl(r):
 		# r = u'window.location.replace("http://www.iqiyi.com/a_19rrjptx89.html?vfm=2008_aldbd")}'
-		page = etree.HTML(r)
+		try:
+			page = etree.HTML(r)
+		except Exception as e:
+			return None
 		referrer = page.xpath(u'.//meta[@name="referrer"]')
 		m = re.search(u'window\.location\.replace\(\"([^\"\)\}]+?)\"\)\}',r)
 		if m and len(referrer) > 0:

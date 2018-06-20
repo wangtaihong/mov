@@ -177,7 +177,10 @@ class ContentJob(object):
         '''回掉给数据'''
         r = self.parse_cmscontent_field(dic=data,task=task)
         print(json.dumps(r))
-        rc = requests_post(url=task.get("redirectURL"),data=json.dumps(r),headers={"Content-Type":"application/json"})
+        m = re.search(u"(meta.*)",task.get("redirectURL"))
+        url = "http://192.168.2.133:8010/"+m.group(1)
+        print(url)
+        rc = requests_post(url=url,data=json.dumps(r),headers={"Content-Type":"application/json"})
         print("rcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrc",rc)
         if rc != '0':
         	return None
