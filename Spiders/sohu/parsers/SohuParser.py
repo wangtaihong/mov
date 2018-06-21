@@ -44,7 +44,7 @@ class SohuParser(object):
 		elif len(aid) > 0:
 			return aid[0].get("value")
 		else:
-			return None
+			return False
 
 	
 	def vdetail_parser(self, r):

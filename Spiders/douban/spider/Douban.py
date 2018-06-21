@@ -41,7 +41,7 @@ class Douban(object):
             return False
         poster = self.crawl_poster(data.get("doubanid"))
         if poster==None or poster==False:
-            return poster
+            return False
         data['poster'] = poster
         data = self.check_crawl_star(data)
         if not data or not data.get("title"):
@@ -55,7 +55,7 @@ class Douban(object):
 
     def check_crawl_star(self,data):
         if data==None:
-            return data
+            return False
         if data.get("directors_list"):
             directors_list = []
             for x in data.get("directors_list"):

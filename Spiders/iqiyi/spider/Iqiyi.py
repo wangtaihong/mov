@@ -71,7 +71,7 @@ class Iqiyi(object):
             return {"status": False, 'urls': urls}
         info = self.vinfo(tvId=albumId_tvId.get("tvId"))
         if not info:
-            return info
+            return False
         data = self.parser.merge_fields(info)
         data = self.check_crawl_star(data)
         if albumId_tvId.get('play') and info.get("cast") and len(info.get("cast").get("directors")) == 0 and len(info.get("cast").get("mainActors")) == 0 and len(info.get("cast").get("singers")) == 0 and len(info.get("cast").get("actors")) == 0 and len(info.get("cast").get("guests")) == 0:
@@ -119,7 +119,7 @@ class Iqiyi(object):
 
     def check_crawl_star(self,data):
     	if not data:
-    		return data
+    		return False
     	if data.get("directors_list"):
     		directors_list = []
     		for x in data.get("directors_list"):

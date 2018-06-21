@@ -164,10 +164,11 @@ def split_space(r):
 
 def check_title(title):
     regx_news = u'新闻|直播|演播|录播|专题|开幕|两会|联播|党委|民生|影讯|资讯|习近平|习主席|总书记|贯彻|国务院|实事|采访|高考|中考|学生|央视|卫视|电视台|记者|主播|宣传部|省委|国务院|市委|法治'
-    regx_yule = u'娱闻|八卦|娱乐'
+    regx_yule = u'娱闻|八卦|娱乐|文娱'
     regx_music = u'音乐|MV|演唱会|卡拉OK|伴奏|歌曲|儿歌|纯音乐'
     regx_edu = u'新东方|初中|高中|高一|高二|中学|数学|物理|教育|习题|古诗|数学|语文|方程|认读|拼音|教学|学习|舞蹈|练习|年级|化学|地理|奥数|高数|线性|曲线|圆周|乘法|除法'
     regx_pe = u'世界杯|体育|NBA|奥运|马术|国足|库里|锦标赛|冰壶|击剑'
+    regx_life = u'广场舞|生活'
     if  re.search(regx_news,title):
         return u'新闻'
     if re.search(regx_yule,title):
@@ -176,11 +177,11 @@ def check_title(title):
         return u'教育'
     if re.search(regx_music,title):
         return u'音乐'
+    if re.search(regx_life,title):
+        return u'生活'
     if len(title)>=12:
         if u'财闻' in title:
             return u'财经'
-        elif u'生活' in title:
-            return u'生活'
         elif u'军事' in title:
             return u'军事'
         elif u'纪实' in title:

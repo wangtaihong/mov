@@ -260,9 +260,10 @@ class DoubanParser(object):
         return {"data": data}
 
     def parse_star(self,r):
-        if r == False or r == None:
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
             return False
-        page = etree.HTML(r)
         data = Star()
         name = page.xpath(u'//div[@id="content"]/h1')
         if len(name) > 0:

@@ -49,7 +49,7 @@ class QQ(object):
 
     def check_crawl_star(self,data):
     	if not data:
-    		return data
+    		return False
         if data.get("directors_list"):
             directors_list = []
             for x in data.get("directors_list"):
