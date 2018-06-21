@@ -84,7 +84,7 @@ class ContentJob(object):
             pass
 
         #测试,先屏蔽了
-        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":task.get("platform")}}})
+        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":"gd"}}})
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]['_id'],task)
 

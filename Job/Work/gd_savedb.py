@@ -40,6 +40,7 @@ class ContentJob(object):
                 time.sleep(6)
                 continue
             task = pickle.loads(p)
+            print(task.get("name"))
             if task.get("name") == None:
                 continue
             r = self.process(task)
@@ -53,8 +54,9 @@ class ContentJob(object):
             pass
 
         #测试,先屏蔽了
-        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":task.get("platform")}}})
+        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":"gd"}}})
         if r_mongo.count() > 0:
+            print(r_mongo[0])
             return self.after_mongo_succ(r_mongo[0]['_id'],task)
         else:
         	return True
