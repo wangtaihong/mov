@@ -6,10 +6,18 @@
 # MYSQL_PASSWORD = 'root'
 # MYSQL_DB = 'douban'
 
-MYSQL_USER = 'appplat'
-MYSQL_HOST = '211.149.225.134'
+"""测试服务器"""
+# MYSQL_USER = 'appplat'
+# MYSQL_HOST = '211.149.225.134'
+# MYSQL_PORT = '3306'
+# MYSQL_PASSWORD = 'appplat'
+# MYSQL_DB = 'wechat_gd'
+
+"""生产环境"""
+MYSQL_USER = 'root'
+MYSQL_HOST = '14.29.2.127'
 MYSQL_PORT = '3306'
-MYSQL_PASSWORD = 'appplat'
+MYSQL_PASSWORD = 'mysql!@Amt'
 MYSQL_DB = 'wechat_gd'
 
 
