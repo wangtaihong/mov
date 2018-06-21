@@ -74,46 +74,46 @@ class SohuParser(object):
 		if len(sohu_rating_sum) > 0:
 			L.sohu_rating_sum = parse_simple(sohu_rating_sum[0].text)
 
-		starring = page.xpath(u".//p[contains(text(),'主演']/a")
-		s = page.xpath(u".//span[contains(text(),'主演']")
+		starring = page.xpath(u".//p[contains(text(),'主演')]/a")
+		s = page.xpath(u".//span[contains(text(),'主演')]")
 		if len(starring) > 0:
 			L.starring = ",".join(set([parse_simple(x.text) for x in starring]))
 			L.starring_list = [{"name":parse_simple(x.text),"sohu_url":"https:"+x.get("href")} for x in starring]
 		elif len(s)>0:
 			L.starring = ",".join([parse_simple(x) for x in s[0].text.replace("主演：","").replace("/",",").split(',')])
 
-		directors = page.xpath(u"//p[contains(text(),'导演']/a")
-		d = page.xpath(u"//span[contains(text(),'导演']")
+		directors = page.xpath(u"//p[contains(text(),'导演')]/a")
+		d = page.xpath(u"//span[contains(text(),'导演')]")
 		if len(directors) > 0:
 			L.directors = ",".join(set([parse_simple(x.text) for x in directors]))
 			L.directors_list = [{"name":parse_simple(x.text),"sohu_url":"https:"+x.get("href")} for x in directors]
 		elif len(d):
 			L.directors = ",".join([parse_simple(x) for x in d[0].text.replace("导演：","").replace("/",",").split(',')])
 
-		tags = page.xpath(u"//p[contains(text(),'类型']/a")
-		t = page.xpath(u"//span[contains(text(),'类型']/em")
+		tags = page.xpath(u"//p[contains(text(),'类型')]/a")
+		t = page.xpath(u"//span[contains(text(),'类型')]/em")
 		if len(tags) > 0:
 			L.tags = ",".join(set([parse_simple(x.text) for x in tags]))
 		elif len(t) > 0:
 			L.tags = ",".join(set([parse_simple(x.text) for x in t]))
 
-		tags = page.xpath(u"//p[contains(text(),'类型']/a")
+		tags = page.xpath(u"//p[contains(text(),'类型')]/a")
 		if len(tags) > 0:
 			L.tags = ",".join(set([parse_simple(x.text) for x in tags]))
 
-		year = page.xpath(u"//p[contains(text(),'年份']/a")
+		year = page.xpath(u"//p[contains(text(),'年份')]/a")
 		if len(year) > 0:
 			L.year = ",".join(set([parse_simple(x.text) for x in year]))
 
-		summary = page.xpath(u'//div[contains(@class="J-fullintro")]')
-		_summary = page.xpath(u'//p[contains(@class="part_info")]')
+		summary = page.xpath(u'//div[contains(@class,"J-fullintro")]')
+		_summary = page.xpath(u'//p[contains(@class,"part_info")]')
 		if len(summary) > 0:
 			L.summary = parse_simple(summary[0].text).replace("简介：","")
 		elif len(_summary) > 0:
 			L.summary = parse_simple(summary[0].text).replace("简介：","")
 
-		img_url = page.xpath(u'//a[contains(@class="J-video-cover")]/img')
-		_img = page.xpath(u'//div[contains(@class="movie-info-img")]/img')
+		img_url = page.xpath(u'//a[contains(@class,"J-video-cover")]/img')
+		_img = page.xpath(u'//div[contains(@class,"movie-info-img")]/img')
 		L.poster = []
 		if len(img_url) > 0:
 			L.img_url = u"https:"+img_url[0].get("href")
