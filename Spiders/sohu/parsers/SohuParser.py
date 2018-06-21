@@ -8,7 +8,7 @@
 import re
 from lxml import etree
 import json, demjson
-from Utils.utils import parse_simple, area_process, language_process
+from Utils.utils import parse_simple, area_process, language_process, split_space
 
 import sys
 reload(sys)
@@ -27,14 +27,20 @@ class SohuParser(object):
 
 	
 	def playlistId_parser(self,r):
+		try:
+			page = etree.HTML(r)
+		except Exception as e:
+			return False
 		playlistId = re.search(u'playlistId *= *"(\d*)',r)
+		__playlistId = re.search(u"playListId: *'(\d*)",r)
 		_playlistId = re.search(u'PLAYLIST_ID="(\d*)',r)
-		page = etree.HTML(r)
 		aid = page.xpath(u'//input[@id="aid"]')
 		if playlistId:
 			return playlistId.group(1)
 		elif _playlistId:
 			return _playlistId.group(1)
+		elif __playlistId:
+			return __playlistId.group(1)
 		elif len(aid) > 0:
 			return aid[0].get("value")
 		else:
@@ -45,22 +51,22 @@ class SohuParser(object):
 		try:
 			page = etree.HTML(r)
 		except Exception as e:
-			return None
+			return False
 		
 		L = Contents()
 		# area = page.xpath(u'//span[contains(text(),"地　区:")]')
-		title = page.xpath(u'//h2[contains(@class,"dbt")]')
+		title = page.xpath(u'.//h2[contains(@class,"dbt")]')
 		if len(title) > 0:
 			L.title = parse_simple(title[0].text)
 
-		sohu_rating = page.xpath(u'//span[@class="socre"]')
-		_rating = page.xpath(u'//span[@class="movie_score"]')
+		sohu_rating = page.xpath(u'.//span[@class="socre"]')
+		_rating = page.xpath(u'.//span[@class="movie_score"]')
 		if len(sohu_rating) > 0:
 			L.sohu_rating = parse_simple(sohu_rating[0].text)
 		elif len(_rating) > 0:
 			L.sohu_rating = parse_simple(_rating[0].text)
 
-		sohu_plays_num = page.xpath(u'//em[contains(@class,"acount")]')
+		sohu_plays_num = page.xpath(u'.//em[contains(@class,"acount")]')
 		if len(sohu_plays_num) > 0:
 			L.sohu_plays_num = parse_simple(sohu_rating_sum[0].text)
 
@@ -68,13 +74,13 @@ class SohuParser(object):
 		if len(sohu_rating_sum) > 0:
 			L.sohu_rating_sum = parse_simple(sohu_rating_sum[0].text)
 
-		strring = page.xpath(u"//p[contains(text(),'主演']/a")
-		s = page.xpath(u"//span[contains(text(),'主演']")
-		if len(strring) > 0:
-			L.starring = ",".join(set([parse_simple(x.text) for x in strring]))
-			L.starring_list = [{"name":parse_simple(x.text),"sohu_url":"https:"+x.get("href")} for x in strring]
+		starring = page.xpath(u".//p[contains(text(),'主演']/a")
+		s = page.xpath(u".//span[contains(text(),'主演']")
+		if len(starring) > 0:
+			L.starring = ",".join(set([parse_simple(x.text) for x in starring]))
+			L.starring_list = [{"name":parse_simple(x.text),"sohu_url":"https:"+x.get("href")} for x in starring]
 		elif len(s)>0:
-			L.strring = ",".join([parse_simple(x) for x in s[0].text.replace("主演：","").replace("/",",").split(',')])
+			L.starring = ",".join([parse_simple(x) for x in s[0].text.replace("主演：","").replace("/",",").split(',')])
 
 		directors = page.xpath(u"//p[contains(text(),'导演']/a")
 		d = page.xpath(u"//span[contains(text(),'导演']")
@@ -139,7 +145,7 @@ class SohuParser(object):
 		try:
 			page = etree.HTML(r)
 		except Exception as e:
-			return None
+			return False
 		S = Star()
 		avatar = page.xpath(u'//div[@class="colL"]/img')
 		if len(avatar) > 0:
@@ -157,11 +163,15 @@ class SohuParser(object):
 
 		birthplace = page.xpath(u'//li[contains(text(),"出生地")]/em')
 		if len(birthplace)>0:
-			S.birthplace = parse_simple(birthplace[0].text)
+			S.birthplace = split_space(birthplace[0].text.replace("/",","))
 
 		date_birth = page.xpath(u'//li[contains(text(),"生日")]/em')
 		if len(date_birth)>0:
 			S.date_birth = parse_simple(date_birth[0].text)
+
+		intro = page.xpath(u'//p[contains(@class,"intro")]/text()')
+		if intro:
+			S.intro = parse_simple("".join(intro))
 
 		body_height = page.xpath(u'//li[contains(text(),"身高")]/em')
 		if len(body_height)>0:
@@ -169,7 +179,7 @@ class SohuParser(object):
 
 		occupation = page.xpath(u'//li[contains(text(),"职业")]/em')
 		if len(occupation)>0:
-			S.occupation = parse_simple(occupation[0].text)
+			S.occupation = split_space(occupation[0].text.replace("/",","))
 
 		constellation = page.xpath(u'//li[contains(text(),"星座")]/em')
 		if len(constellation)>0:
@@ -191,9 +201,9 @@ class SohuParser(object):
 		if dic.get("directorsMap"):
 			L.directors_list = [{"name":x.get("starName"),"souhu_id":x.get("starId"),"sohu_url":"https:"+x.get("starUrl")}for x in dic.get("directorsMap")]
 		if dic.get("mainActors"):
-			L.strring = ",".join(dic.get("mainActors"))
+			L.starring = ",".join(dic.get("mainActors"))
 		if dic.get("mainActorsMap"):
-			L.strring_list = [{"name":x.get("starName"),"souhu_id":x.get("starId"),"sohu_url":"https:"+x.get("starUrl")}for x in dic.get("mainActorsMap")]
+			L.starring_list = [{"name":x.get("starName"),"souhu_id":x.get("starId"),"sohu_url":"https:"+x.get("starUrl")}for x in dic.get("mainActorsMap")]
 		if dic.get("albumDesc"):
 			L.summary = dic.get("albumDesc")
 		L.title = dic.get("albumName")
@@ -203,7 +213,8 @@ class SohuParser(object):
 			L.producer_country = area_process(dic.get("area"))
 		if dic.get("categories"):
 			L.tags = ",".join(dic.get("categories"))
-		L.sohu_play_url = "https:"+dic.get("defaultPageUrl")
+		if dic.get("defaultPageUrl"):
+			L.sohu_play_url = "https:"+dic.get("defaultPageUrl")
 		if dic.get("largeVerPicUrl"):
 			L.img_url = "https:"+dic.get("largeVerPicUrl")
 		L.poster = []
@@ -229,19 +240,20 @@ class SohuParser(object):
 			L.poster.append({"url":"https:"+dic.get("smallPicUrl")})
 		if dic.get("smallVerPicUrl"):
 			L.poster.append({"url":"https:"+dic.get("smallVerPicUrl")})
-		L.playlistid = dic.get("playlistid")
+		# L.playlistid = dic.get("playlistid")
 		L.year = dic.get("publishYear")
 		L.all_episode = dic.get("totalSet")
 		L.sohu_tvid = dic.get("tvId")
 		L.sohu_vid = dic.get("vid")
 		L.sohu_kissId = dic.get("kissId")
+		L.sohu_playlistid = dic.get("playlistid")
 		L.sohu_pid = dic.get("pid")
 		L.sohu_pianhuaPid = dic.get("pianhuaPid")
-		L.videos = []
-		if dic.get("videos"):
-			L.videos = self.merge_videos(dic.get("videos"),L)
-		if dic.get("prevideos"):
-			L.videos += self.merge_videos(dic.get("prevideos"),L)
+		# L.videos = []
+		# if dic.get("videos"):
+		# 	L.videos = self.merge_videos(dic.get("videos"),L)
+		# if dic.get("prevideos"):
+		# 	L.videos += self.merge_videos(dic.get("prevideos"),L)
 
 		L.created_at = time.time()
 
@@ -280,11 +292,11 @@ class SohuParser(object):
 				_temp["sohu_vid"] = x.get("vid")
 			if x.get("videoDesc"):
 				_temp["summary"] = x.get("videoDesc")
-			_temp["playlistid"] = L.playlistid
+			_temp["sohu_playlistid"] = L.sohu_playlistid
 			_temp["directors"] = L.directors
 			_temp["directors_list"] = L.directors_list
-			_temp["strring"] = L.strring
-			_temp["strring_list"] = L.strring_list
+			_temp["starring"] = L.starring
+			_temp["starring_list"] = L.starring_list
 			_temp["producer_country"] = L.producer_country
 			_temp["tags"] = L.tags
 			_temp["year"] = L.year
@@ -292,14 +304,26 @@ class SohuParser(object):
 		
 		return videos_list
 
+	# def parser_vinfo(self,r):
+	# 	m = re.search(u'videolist\(([^\);]+?)\);',r)
+	# 	try:
+	# 		return json.loads(m.group(1))
+	# 	except Exception as e:
+	# 		pass
+	# 	try:
+	# 		return demjson.decode(m.group(1))
+	# 	except Exception as e:
+	# 		pass
+	# 	return m
+
 	def parser_vinfo(self,r):
-		m = re.search(u'videolist\(([^\);]+?)\);',r)
+		# r = r.replace(u"__get_videolist(","").replace(u');',"")
 		try:
-			return json.loads(m.group(1))
+			return json.loads(r)
 		except Exception as e:
 			pass
 		try:
-			return demjson.decode(m.group(1))
+			return demjson.decode(r)
 		except Exception as e:
 			pass
 		return m

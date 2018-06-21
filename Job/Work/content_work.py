@@ -32,7 +32,7 @@ class ContentJob(object):
     """docstring for ClassName"""
     def __init__(self, **args):
     # 	super(ClassName, self).__init__()
-        self.callback_url = config.gs_callback_url
+        pass
 
     def job(self):
         '''后台job'''
@@ -42,6 +42,7 @@ class ContentJob(object):
             p = rd.spop(config.content_work_task)
             if p==None:
                 self.failed_job()
+                print("sleep 6s...")
                 time.sleep(6)
                 continue
             task = json.loads(p)
@@ -71,10 +72,11 @@ class ContentJob(object):
             pass
 
         #测试,先屏蔽了
-        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("mediaId"),"platform":"gs"}}})
+        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("mediaId"),"platform":task.get("platform")}}})
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]["_id"],task)
 
+        """过滤新闻等短视频"""
         ct = check_title(task['contentName'])
         if ct:
             return self.after_search_failed(task,category=ct)
@@ -94,7 +96,6 @@ class ContentJob(object):
             regx_name = title_preprocess_seed(task.get("contentName"))
             regx_name = parse_regx_char(regx_name)
             regx_name = u'.*' + regx_name.replace(u'-','.*') + ".*"
-            print('---%s------%s'%(regx_name,task.get("contentName")))
             regx_name = re.compile(regx_name, re.IGNORECASE)
             regx['title'] = regx_name  #匹配标题以之开头的
             contents = mongo_conn.contents.find(regx)
@@ -123,7 +124,7 @@ class ContentJob(object):
                 print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^%s"%regx_name)
                 return self.after_mongo_succ(_id,task)
         else:
-            self.baidu(task)
+            return self.baidu(task)
 
     def after_mongo_succ(self, _id, task):
         c = mongo_conn.contents.find({"_id": _id})
@@ -147,12 +148,7 @@ class ContentJob(object):
         return self.callback(data=c[0],task=task)
 
     def after_search_failed(self,task,category=None):
-        if not category:
-            """测试阶段先返回，以后正式了要保存的"""
-            task['category'] = None
-            # return None
-        task['category'] = category
-        return False
+        task['contentType'] = category
         data = self.save_task_tocontents(task)
         return self.callback(data=data,task=task)
 
@@ -163,23 +159,24 @@ class ContentJob(object):
         print(k)
         baidu = Baidu(wd=search_preprocess(k))
         data = baidu.v_search()
-        print(json.dumps(data))
         print("-------------------------------------------------------------------------")
-        print(not data)
+        print(json.dumps(data))
         """搜索到结果"""
         if data and data.get("_id"):
+            """成功爬到数据"""
             return self.after_mongo_succ(ObjectId(data['_id']),task)
-        else:
+        elif data==False:
+            """百度已经搜索到影视结果，但是由于其他原因数据没有爬去完整"""
+            return data
+        elif not data:
+            """百度搜索没有影视结果 未None或为[]"""
             return self.after_search_failed(task)
-        # return data
 
     def callback(self,data,task):
         '''回掉给数据'''
         r = self.parse_cmscontent_field(dic=data,task=task)
-        print(json.dumps(r))
         m = re.search(u"(meta.*)",task.get("redirectURL"))
         url = "http://192.168.2.133:8010/"+m.group(1)
-        print(url)
         rc = requests_post(url=url,data=json.dumps(r),headers={"Content-Type":"application/json"})
         print("rcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrcrc",rc)
         if rc != '0':

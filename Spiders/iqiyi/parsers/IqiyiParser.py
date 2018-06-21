@@ -30,7 +30,10 @@ class IqiyiParser(object):
 
     def vdetail_parser(self, r, url=None):
         """视频详情页面"""
-        page = etree.HTML(r)
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
         L = Contents()
         result_div = page.xpath(u'//div[@class="mod_search_topic"]')
         if result_div:
@@ -116,7 +119,10 @@ class IqiyiParser(object):
         return L.__dict__
 
     def plays_parser(self, r):
-        page = etree.HTML(r)
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
         el_actors = page.xpath(
             u'.//li[contains(@class,"widget-actorHideResp")]')
         starring_list = []
@@ -161,7 +167,7 @@ class IqiyiParser(object):
         try:
             page = etree.HTML(r)
         except Exception as e:
-            return None
+            return False
         S = Star()
         S.iqiyi_url = url
         m = re.search(u'"circleId"\:(\d*)', r)  # paopao id
@@ -267,13 +273,16 @@ class IqiyiParser(object):
         albumId: 207771601,
 		tvId: 1033851800,
         """
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
+        play = page.xpath(u'.//a[@class="albumPlayBtn"]')
         albumId = re.search(u'albumId: *(\d*)', r)
         tvId = re.search(u'tvId: *(\d*)', r)
-        page = etree.HTML(r)
-        play = page.xpath(u'.//a[@class="albumPlayBtn"]')
         data = {}
         if not albumId:
-            return None
+            return False
         if albumId:
             data['albumId'] = albumId.group(1)
         if tvId:
@@ -338,7 +347,7 @@ class IqiyiParser(object):
         try:
             return demjson.decode(m.group(2))
         except Exception as e:
-            return None
+            return False
 
     def merge_fields(self, info):
         L = Contents()

@@ -38,7 +38,7 @@ class QQ(object):
         data = self.parsers.vdetail_parser(r)
         data = self.check_crawl_star(data)
         if not data or not data.get("title"):
-            return None
+            return False
         self.after_save(data)
         return self.save(data)
 
@@ -48,7 +48,7 @@ class QQ(object):
         return self.parsers.parse_star(r=r,url=url)
 
     def check_crawl_star(self,data):
-    	if data==None:
+    	if not data:
     		return data
         if data.get("directors_list"):
             directors_list = []

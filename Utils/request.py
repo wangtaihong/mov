@@ -6,7 +6,7 @@
 # @Version : $Id$
 
 # coding:utf-8
-import requests
+import requests, chardet
 import sys
 import time
 reload(sys)
@@ -27,11 +27,14 @@ def requests_get(url, session = None,headers=None, data={}, timeout=60,cookies=N
                 r = requests.get(url=url, headers=headers, timeout=timeout,params=data)
             else:
                 r = session.get(url=url, headers=headers, timeout=timeout,params=data)
-            print(r.encoding)
-            r.encoding='utf-8'
-            # if r.encoding!=u'UTF-8':
-                # r.text.decode(r.encoding).encode('utf-8')
-            return r.text
+            if r.encoding == u'GBK':
+                text = r.text
+                text.decode('utf-8')
+            else:
+                r.encoding='utf-8'
+                text = r.text
+            print(chardet.detect(str(text))['encoding'])
+            return text
             break
         except requests.exceptions.ProxyError as e:
             print('requests_get url:', url)

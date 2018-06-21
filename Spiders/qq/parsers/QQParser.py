@@ -28,7 +28,7 @@ class QQParser(object):
         try:
             page = etree.HTML(r)
         except Exception as e:
-            return None
+            return False
         L = Contents()
         title = page.xpath(u'//a[@_stat="info:title"]')
         m = re.search(u'\{"id":"(\w*\d*)"',r)
@@ -164,7 +164,7 @@ class QQParser(object):
             L.directors_list = directors_list
 
         if L.title==None:
-            return None
+            return False
         L.created_at = time.time()
         return L.__dict__
 
@@ -176,7 +176,10 @@ class QQParser(object):
             return u'http:' + url
 
     def detail_url_parser(self,r):
-        page = etree.HTML(r)
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
         m = page.xpath(u'//h2[@class="player_title"]/a')
         if len(m):
             return "https://v.qq.com"+m[0].get("href")
@@ -185,7 +188,10 @@ class QQParser(object):
 
     def parse_star(self,r,url):
         data = Star()
-        page = etree.HTML(r)
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
         intro = page.xpath(u'.//div[@class="wiki_content"]/text()')
         if intro:
             data.intro = parse_simple("".join(intro))

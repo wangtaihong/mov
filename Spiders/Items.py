@@ -82,6 +82,7 @@ class Contents(object):
     pptv_id = None
     
     sohu_play_url = None
+    sohu_playlistid = None
     sohu_url = None
     sohu_plays_num = None
     sohu_rating = None

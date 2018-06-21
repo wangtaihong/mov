@@ -30,17 +30,12 @@ class DoubanParser(object):
         else:
             return u'http:' + url
 
-    def detail_url_parser(self,r):
-        page = etree.HTML(r)
-        m = page.xpath(u'//h2[@class="player_title"]/a')
-        if len(m):
-            return "https://v.qq.com"+m[0].get("href")
-        else:
-            return None
-
     def vdetail_parser(self,r):
         data = Contents()
-        page = etree.HTML(r)
+        try:
+            page = etree.HTML(r)
+        except Exception as e:
+            return False
         year = re.search(u'<span class="year">\((\d{4})\)</span>', r)
         if year:
             data.year = year.group(1)
@@ -273,7 +268,7 @@ class DoubanParser(object):
         if len(name) > 0:
             data.name = parse_simple(name[0].text)
         else:
-            return None
+            return False
         imgUrl = page.xpath(u'//div[@class="pic"]/a[@class="nbg"]')
         if len(imgUrl) > 0:
             data.img_url = imgUrl[0].get("href")

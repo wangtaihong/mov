@@ -36,7 +36,7 @@ class Baidu(object):
 			# "mgtv.com",
 			"v.qq.com" : QQ,
 			"v.pptv.com" : PPTV,
-			# "sohu.com": Sohu,
+			"sohu.com": Sohu,
 			# "le.com",
 			"youku.com":Youku
 			}
@@ -44,9 +44,9 @@ class Baidu(object):
 					#"baike.baidu.com",
 					"movie.douban.com",
 					"v.qq.com",
+					"sohu.com",
 					"iqiyi.com",
 					# "v.pptv.com",
-					# "sohu.com",
 					# "le.com",
 					# "youku.com"
 				]

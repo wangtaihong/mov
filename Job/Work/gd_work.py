@@ -84,7 +84,7 @@ class ContentJob(object):
             pass
 
         #测试,先屏蔽了
-        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":"gd"}}})
+        r_mongo = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':task.get("code"),"platform":task.get("platform")}}})
         if r_mongo.count() > 0:
             return self.after_mongo_succ(r_mongo[0]['_id'],task)
 
@@ -133,7 +133,7 @@ class ContentJob(object):
                 print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^%s"%regx_name)
                 return self.after_mongo_succ(_id,task)
         else:
-            self.baidu(task)
+            return self.baidu(task)
 
     def after_mongo_succ(self, _id, task):
         c = mongo_conn.contents.find({"_id": _id})
@@ -154,10 +154,6 @@ class ContentJob(object):
         return self.callback(data=c[0],task=task)
 
     def after_search_failed(self,task,category=None):
-        if not category:
-            """测试阶段先返回，以后正式了要保存的"""
-            task['category'] = None
-            return None
         task['category'] = category
         print("((((((((((((((((((((((((((((((((((((((((")
         print(task['id'])
@@ -167,18 +163,23 @@ class ContentJob(object):
     def baidu(self,task):
         baidu = Baidu(wd=search_preprocess(task['name']))
         data = baidu.v_search()
-        print(json.dumps(data))
+        print(data)
         print("-------------------------------------------------------------------------")
-        print(not data)
         """搜索到结果"""
         if data and data.get("_id"):
+            """爬取完成"""
             return self.after_mongo_succ(ObjectId(data['_id']),task)
-        else:
+        elif data==False:
+            """百度搜索到，但是呢数据爬取不完整"""
+            return data
+        elif not data:
+            """百度没有搜索到影视结果 None 或 []"""
             return self.after_search_failed(task)
 
     def callback(self,data,task):
         '''回掉给数据'''
         print("code",task['code'],data['_id'])
+        """隔断，填表放到gd-savedb去做"""
         return True
         db_session = scoped_session(DBSession)
         item = db_session.query(GDCmscontent).filter_by(code=task['code']).first()

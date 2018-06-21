@@ -35,20 +35,17 @@ class Douban(object):
             iid = re.search(u'(\d{5,})',urls['url'])
             if iid:
                 url = u'https://movie.douban.com/subject/{}/'.format(iid.group(1))
-        # if m:
-        # 	r = requests_get(url=url,headers=headers)
-        # 	url = self.parsers.detail_url_parser(r)
         r = requests_get(url=url,headers=headers)
         data = self.parsers.vdetail_parser(r)
-        if data==None or not data.get("doubanid"):
-            return None
+        if not data or not data.get("doubanid"):
+            return False
         poster = self.crawl_poster(data.get("doubanid"))
         if poster==None or poster==False:
             return poster
         data['poster'] = poster
         data = self.check_crawl_star(data)
         if not data or not data.get("title"):
-            return None
+            return False
         return self.save(data)
 
     def crawl_star(self,url):

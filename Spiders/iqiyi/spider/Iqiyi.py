@@ -67,7 +67,7 @@ class Iqiyi(object):
         r = requests_get(url=urls['url'], headers=headers)
         albumId_tvId = self.parser.parse_albumId_tvId(r=r, url=urls['url'])
         print("albumId_tvId", albumId_tvId)
-        if albumId_tvId == None:
+        if not albumId_tvId:
             return {"status": False, 'urls': urls}
         info = self.vinfo(tvId=albumId_tvId.get("tvId"))
         if not info:
@@ -112,13 +112,13 @@ class Iqiyi(object):
             albumId=albumId_tvId.get("albumId"))
 
         if not data or not data.get("title"):
-            return None
+            return False
         data = self.save(data)
         self.after_save(data)
         return data
 
     def check_crawl_star(self,data):
-    	if data==None:
+    	if not data:
     		return data
     	if data.get("directors_list"):
     		directors_list = []

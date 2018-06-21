@@ -174,10 +174,11 @@ class BaiduParser(object):
 	@staticmethod
 	def parse_mid_tourl(r):
 		# r = u'window.location.replace("http://www.iqiyi.com/a_19rrjptx89.html?vfm=2008_aldbd")}'
+		"""中间跳转url"""
 		try:
 			page = etree.HTML(r)
 		except Exception as e:
-			return None
+			return False
 		referrer = page.xpath(u'.//meta[@name="referrer"]')
 		m = re.search(u'window\.location\.replace\(\"([^\"\)\}]+?)\"\)\}',r)
 		if m and len(referrer) > 0:
@@ -194,7 +195,7 @@ class BaiduParser(object):
 			r = re.sub(u'&nbsp;','',r)
 			page = etree.HTML(r)
 		except Exception as e:
-			return None
+			return False
 		L = Contents()
 		summary = page.xpath(u'//div[@class="lemmaWgt-lemmaSummary lemmaWgt-lemmaSummary-light"]')
 		if len(summary) > 0:
