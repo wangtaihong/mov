@@ -28,18 +28,19 @@ def process():
     while True:
         p = rd.spop("posters")
         task = json.loads(p)
-        r = requests_get(task['url'])
-        print("r.status_code:",r.status_code)
-        if r.status_code == 404 or r == False:
+        im = requests_get(task['url'])
+        #print("r.status_code:",r.status_code)
+        #if r.status_code == 404 or r == False:
+        if not im:
             rd.sadd("posters_failed",p)
             print("failed", p)
             continue
-        im = Image.open(r.raw)
+        #im = Image.open(r.raw)
         file_name = "/".join([task.get("content_id"),"%s_%sx%s.jpg"%(task.get("content_id"),im.width,im.height)])
         try:
         	os.makedirs(re.search('(.*/)',path+file_name).group(1))
         except Exception as e:
-        	print(str(e))
+        	#print(str(e))
         	pass
         im.convert('RGB').save(path+file_name)
         result = mongo_conn.posters.update_one({"_id":ObjectId(task['_id'])},{"$set":{"file_path":file_name}})
@@ -58,7 +59,8 @@ def requests_get(url):
     retry = 5
     while retry > 0:
         try:
-            return requests.get(url,stream=True)
+            # return requests.get(url,stream=True)
+            return Image.open(requests.get(url,stream=True).raw)
         except Exception as e:
             retry -= 1
     return False
