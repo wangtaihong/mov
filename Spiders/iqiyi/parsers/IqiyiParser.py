@@ -476,10 +476,23 @@ class IqiyiParser(object):
                     "imageUrl"), "iqiyi_userId": x.get("userId"), "iqiyi_circleId": x.get("circleId")})
             L.guests = ",".join(L.guests)
 
+        if info.get("cast") and info.get("cast").get("hosts"):
+            L.hosts = []
+            L.hosts_list = []
+            for x in info.get("cast").get("hosts"):
+                L.hosts.append(x.get("name"))
+                L.hosts_list.append({"name": x.get("name"), "iqiyi_id": x.get("id"), "avatar": x.get(
+                    "imageUrl"), "iqiyi_userId": x.get("userId"), "iqiyi_circleId": x.get("circleId")})
+            L.hosts = ",".join(L.hosts)
+
         if L.release_date and L.year==None:
         	m = re.search(u'(\d{4})',L.release_date)
         	if m:
         		L.year = m.group(1)
+
+        if not L.directors_list and not L.directors_list and L.hosts:
+            L.directors = L.hosts
+            L.directors_list = L.hosts_list
 
         L.focuses = info.get("focuses")
         L.iqiyi_rating = info.get("score")

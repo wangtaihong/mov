@@ -66,7 +66,7 @@ class ContentJob(object):
             # p = rd.spop(config.gd_task_bkbk.encode('latin1'))
             p = rd.spop(config.gd_task_failed)
             if p==None:
-                continue
+                return True
             task = pickle.loads(p)
             if task.get("name") == None:
                 continue
@@ -163,8 +163,8 @@ class ContentJob(object):
     def baidu(self,task):
         baidu = Baidu(wd=search_preprocess(task['name']))
         data = baidu.v_search()
-        print(data)
         print("-------------------------------------------------------------------------")
+        print('========',data)
         """搜索到结果"""
         if data and data.get("_id"):
             """爬取完成"""

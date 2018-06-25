@@ -143,7 +143,7 @@ def search_preprocess(doc):
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
                    u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
                    u'(热剧\w*\d*)',u'(影讯\w*\d*)',
-                   u'(第.{1,}集)', "-", u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-',u'NEW'])
+                   u'(第.{1,}集)', u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-',u'NEW', u"(\d{5,})"])
     ji = re.search(u'(第(.{1})季)', doc)
     bu = re.search(u'(第(.{1})部)', doc)
     if ji:
@@ -152,6 +152,7 @@ def search_preprocess(doc):
         doc = doc.replace(bu.group(1), bu.group(2))
     for c in chars_resub:
         doc = re.sub(c, '', doc)
+    doc = re.sub(u"(\d{5,})", '', doc)
     '''中英文翻译的  留下中文'''
     if re.search(u'^[\u4e00-\u9fa5]', doc):
         doc = re.sub(u'( [A-Za-z]*)', '', doc)
@@ -177,13 +178,13 @@ def check_title(title):
         return u'教育'
     if re.search(regx_music,title):
         return u'音乐'
-    if re.search(regx_life,title):
-        return u'生活'
     if len(title)>=12:
         if u'财闻' in title:
             return u'财经'
         elif u'军事' in title:
             return u'军事'
+        elif re.search(regx_life,title):
+            return u'生活'
         elif u'纪实' in title:
             return u'纪实'
         elif re.search(regx_pe,title):

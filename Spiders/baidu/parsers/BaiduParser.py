@@ -28,7 +28,7 @@ class BaiduParser(object):
 		try:
 			page = etree.HTML(r)
 		except Exception as e:
-			return None
+			return False
 		container = page.xpath(u'.//div[contains(@class, "c-container")]')     #container
 		re_data = []
 		if len(container) > 0:

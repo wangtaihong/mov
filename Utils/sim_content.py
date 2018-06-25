@@ -12,7 +12,7 @@ from Utils.utils import process_actor, search_preprocess, parse_regx_char, area_
 def sim_content(data):
     sim_regx = {}
     if data.get("directors") and data.get("directors")!="":
-        sim_regx["directors"] = re.compile(u"("+data["directors"]+")",re.IGNORECASE)
+        sim_regx["directors"] = re.compile(u"("+parse_regx_char(data["directors"])+")",re.IGNORECASE)
     # if data.get("starring") and data.get("starring")!="":
     #     sim_regx['starring'] = re.compile(u"("+data["starring"]+")",re.IGNORECASE)
     if len(sim_regx)==0:

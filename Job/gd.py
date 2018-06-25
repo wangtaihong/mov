@@ -17,13 +17,13 @@ def work():
 def by_gevent():
     gevent.joinall([
         gevent.spawn(work, ),
-        gevent.spawn(work, ),
-        gevent.spawn(work, ),
-        gevent.spawn(work, ),
-        gevent.spawn(work, ),
+        # gevent.spawn(work, ),
+        # gevent.spawn(work, ),
+        # gevent.spawn(work, ),
+        # gevent.spawn(work, ),
     ])
 
-def by_threading_gevent(thr=4):
+def by_threading_gevent(thr=1):
     for i in range(thr):
         # t = threading.Thread(target = use_queue,args = (in_queue,))
         t = threading.Thread(target = by_gevent)

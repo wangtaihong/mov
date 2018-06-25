@@ -75,7 +75,8 @@ class Contents(object):
     iqiyi_tvId = None
     iqiyi_vid = None
     iqiyi_albumId = None
-
+    hosts = None
+    
     pptv_play_url = None
     pptv_plays_num = None
     pptv_rating = None

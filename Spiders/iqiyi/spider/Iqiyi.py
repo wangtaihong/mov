@@ -198,6 +198,20 @@ class Iqiyi(object):
                     actors_list.append(x)
             data['actors_list'] = actors_list
 
+
+        if data.get("hosts_list"):
+            hosts_list = []
+            for x in data.get("hosts_list"):
+                if x.get("iqiyi_id"):
+                    s = self.crawl_star(url=self.star_url.format(id=x.get("iqiyi_id")))
+                    if s:
+                        hosts_list.append(s)
+                    else:
+                        hosts_list.append(x)
+                else:
+                    hosts_list.append(x)
+            data['hosts_list'] = hosts_list
+
         if data.get("publishers_list"):
             publishers_list = []
             for x in data.get("publishers_list"):
@@ -313,6 +327,16 @@ class Iqiyi(object):
 
         if data.get("guests_list"):
             for x in data.get("guests_list"):
+                _id = self.save_iqiyi_star(x)
+                if x.get("_id"):
+                    del x['_id']
+                x['star_id'] = self.save_star(x)
+                if x.get("_id"):
+                    del x['_id']
+
+
+        if data.get("hosts_list"):
+            for x in data.get("hosts_list"):
                 _id = self.save_iqiyi_star(x)
                 if x.get("_id"):
                     del x['_id']
