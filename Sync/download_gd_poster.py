@@ -4,11 +4,11 @@
 # @Link    :
 # @Version : $Id$
 
+from gevent import monkey; monkey.patch_all()
 import os
 import threading
 import redis
 import requests
-from gevent import monkey; monkey.patch_all()
 import gevent, sys
 sys.path.append('../')
 import config
@@ -16,7 +16,7 @@ sys.path.append('./')
 from DB.RedisClient import rd
 
 path = u"E:/media/iptv_full2/"
-file_name = r'E:/img_increase_20180615.txt'
+file_name = u'C:/Users/Admin/Documents/Tencent Files/1985911781/FileRecv/img_increase_20180622.txt'
 
 
 def process():
@@ -26,7 +26,7 @@ def process():
         IM = IM.replace('\n', "")
         data = IM.split(',')
         url = 'http://183.59.160.50:8082/EPG/jsp/images/universal/film/poster/' + data[3]
-        path = u"E:/posters_4/"+"/".join(data[3].split('/')[:-1])+"/"
+        path = u"E:/posters_5/"+"/".join(data[3].split('/')[:-1])+"/"
         try:
         	os.makedirs(path)
         except Exception as e:
@@ -82,5 +82,5 @@ def task_gevent():
 
 
 if __name__ == '__main__':
-    readfile()
+    # readfile()
     gevent_threading()

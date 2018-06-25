@@ -24,6 +24,7 @@ from DB.GDCmscontent import GDCmscontent
 from DB.GDCmscontent_Jon import GDCmscontent_Jon
 from DB.mysql_session import DBSession
 from sqlalchemy.orm import scoped_session
+from sqlalchemy.sql import func
 from sqlalchemy import desc, asc
 from Utils.request import requests_get, requests_post
 from Utils.utils import parse_regx_char, area_process, title_preprocess, title_preprocess_seed, process_actor, search_preprocess, check_title
@@ -52,6 +53,7 @@ class ContentJob(object):
             if task.get("name") == None:
                 continue
             r = self.process(task)
+            print("process",r)
             if not r:
                 rd.sadd(config.gd_task_failed,p)
                 pass
@@ -254,14 +256,16 @@ class ContentJob(object):
 def producer():
     db_session = scoped_session(DBSession)
     print(db_session)
-    count = db_session.query(GDCmscontent).count()
-    print(count)
+    # count = db_session.query(GDCmscontent).count()
+    maxid = db_session.query(func.max(GDCmscontent.id)).all()
+    print(maxid[0][0])
     size = 500
-    for x in xrange(1,count/size+2):
+    for x in xrange(1,maxid[0][0]/size+2):
         contents = db_session.query(GDCmscontent).filter((GDCmscontent.series_flag.in_((100,110))) & (GDCmscontent.data_flag==None)&(GDCmscontent.id>=size*(x-1))&(GDCmscontent.id<=size*x)).all()
+        print(size*x)
         for item in contents:
             rd.sadd(config.gd_task,pickle.dumps(item.__dict__))
-            print(item.id)
+            print("id:",item.id)
     db_session.close()
     return True
 

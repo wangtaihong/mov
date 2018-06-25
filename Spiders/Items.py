@@ -89,6 +89,8 @@ class Contents(object):
     sohu_rating = None
     sohu_id = None
     sohu_rating_sum = None
+    sohu_vid = None
+    sohu_tvid = None
 
     qq_rating = None
     qq_id = None
@@ -179,6 +181,7 @@ class Poster(object):
     photos_page = None
     doubanvid = None
     prop = None
+    file_path = None
     width = None
     doubanid = None
     levid = None

@@ -33,4 +33,16 @@ pip install setuptools cffi 'cython>=0.28' git+git://github.com/gevent/gevent.gi
 redis-server.exe redis.windows.conf
 
 
-749307,988922,996610,1219403,1219405,1211540,974380,844569,785955,986939,681015,682862,964689,988297,990773,1219374,1042782,605985,607185,690577,737937,741404,797601,583915,583947,714531,579581,579964,584030
+sudo pip install virtualenv
+
+# sudo pip3 install virtualenv
+
+mkdir ~/myproject
+cd ~/myproject
+
+virtualenv venv
+
+source venv/bin/activate
+
+deactivate it:
+deactivate
