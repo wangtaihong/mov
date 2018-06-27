@@ -108,12 +108,12 @@ def parser_poster_fields(s):
                 _temp[x] = s.get(x)
     return _temp
 
-def get_posters(c):
+def get_posters(c,is_all=True):
     posterList = []
     if c.get("iqiyi_tvId") and c.get("starring") and c.get("directors"):
         regx = {}
-        regx["directors"] = re.compile(u"("+ "|".join(process_actor(c.get("directors")).split(','))+")",re.IGNORECASE)
-        regx['starring'] = re.compile(u"("+ "|".join(process_actor(c.get("starring")).split(','))+")",re.IGNORECASE)
+        regx["directors"] = re.compile(u"("+ "|".join(process_actor(parse_regx_char(c.get("directors"))).split(','))+")",re.IGNORECASE)
+        regx['starring'] = re.compile(u"("+ "|".join(process_actor(parse_regx_char(c.get("starring"))).split(','))+")",re.IGNORECASE)
         # regx['area'] = re.compile(u"("+ "|".join(area_process(c.get("region")))+")",re.IGNORECASE)
         regx_name = title_preprocess_mongosearch(c.get("title"))
         regx_name = parse_regx_char(regx_name)
@@ -172,10 +172,11 @@ def get_posters(c):
         if posterList:
             # return posterList
             pass
-    posters = mongo_conn.posters.find({"content_id":str(c["_id"])})
-    if posters.count()!=0:
-        for p in posters:
-            posterList.append(parser_poster_fields(p))
+    if is_all:
+        posters = mongo_conn.posters.find({"content_id":str(c["_id"])})
+        if posters.count()!=0:
+            for p in posters:
+                posterList.append(parser_poster_fields(p))
     return posterList
 
 

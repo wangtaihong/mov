@@ -56,9 +56,9 @@ class Merge(object):
 
     # def merge_video(self):
     #     t1 = time.time()
-    #     contens = self.mongo_douban_tvs.find().limit(10).skip(10)
+    #     contents = self.mongo_douban_tvs.find().limit(10).skip(10)
     #     self.mongo_posters.create_index("content_id")
-    #     for item in contens:
+    #     for item in contents:
     #         doc1 = ",".join([item.get("title").strip(" "),item.get("starring") if item.get("starring") else "",item.get("year").strip(" ") if item.get("year")else"",item.get("directors")if item.get("directors")else""])
     #         print(doc1)
     #         print(item.get("title"))
@@ -100,7 +100,7 @@ class Merge(object):
 
     def merge_doubanvideo(self,query={}):
         t1 = time.time()
-        #contens = self.mongo_douban_tvs.find().limit(10).skip(10)
+        #contents = self.mongo_douban_tvs.find().limit(10).skip(10)
         contents = self.mongo_douban_tvs.find(query,no_cursor_timeout=True)
         print(contents.count())
         self.mongo_posters.create_index("doubanid")
@@ -136,7 +136,7 @@ class Merge(object):
     
     def merge_letvvideo(self,query={}):
         t1 = time.time()
-        #contens = self.mongo_douban_tvs.find().limit(10).skip(10)
+        #contents = self.mongo_douban_tvs.find().limit(10).skip(10)
         contents = self.mongo_letv_tvs.find(query,no_cursor_timeout=True)
         print(contents.count())
         self.mongo_posters.create_index("doubanid")
@@ -564,12 +564,12 @@ class Merge(object):
 
     def merge_star(self):
         t1 = time.time()
-        contens = self.mongo_douban_stars.find(no_cursor_timeout=True)
+        contents = self.mongo_douban_stars.find(no_cursor_timeout=True)
         self.mongo_stars.create_index("name")
         self.mongo_stars.create_index("doubanid")
         self.mongo_stars.create_index("leId")
         self.mongo_stars.create_index("youkuid")
-        for item in contens:
+        for item in contents:
             item_id = item.get("_id")
             data = {}
             data = item
@@ -697,9 +697,9 @@ class Merge(object):
         '''乐视明星数据汇总'''
         t1 = time.time()
         succ = 0
-        contens = self.mongo_letv_stars.find(query,no_cursor_timeout=True)
+        contents = self.mongo_letv_stars.find(query,no_cursor_timeout=True)
         self.mongo_stars.create_index("name")
-        for item in contens:
+        for item in contents:
             item_id = item.get("_id")
             #date_birth     area
             #birth area
@@ -876,8 +876,8 @@ def fixyoukuid():
     count = mongo_youku_videos.count()
     limit = 1000
     for step in xrange(0, count/limit):
-        contens = mongo_youku_videos.find(no_cursor_timeout=True).skip(step*limit).limit(limit)
-        for item in contens:
+        contents = mongo_youku_videos.find(no_cursor_timeout=True).skip(step*limit).limit(limit)
+        for item in contents:
             print("id:", item['_id'])
             if item.get("types"):
                 types = item.get("types").replace("|",",")
@@ -934,8 +934,8 @@ def clean():
     mongo_contents = MongoClient(
         config.MONGO_HOST, config.MONGO_PORT).zydata.contents
     count = mongo_contents.count()
-    contens = mongo_contents.find(no_cursor_timeout=True)
-    for item in contens:
+    contents = mongo_contents.find(no_cursor_timeout=True)
+    for item in contents:
         print("id:", item['_id'])
         if item.get("type"):
             types = item.get("type").replace(u"|",",").replace(u'/',',').replace(u" ","")
@@ -967,8 +967,8 @@ def clean():
 def fixletv():
     mongo_letv_tvs = MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata.letv_tvs
     mongo_letv_stars = MongoClient(config.MONGO_HOST, config.MONGO_PORT).zydata.letv_stars
-    contens = mongo_letv_tvs.find({'starring_list': {'$exists': False}})
-    for item in contens:
+    contents = mongo_letv_tvs.find({'starring_list': {'$exists': False}})
+    for item in contents:
         if item.get("starring")!="":
             starring_list = []
             for x in item.get("starring").strip(",").strip(" ").split(','):
@@ -1058,6 +1058,20 @@ def merge_douban_tags():
             if tags:
                 mongo_conn.contents.update_one({"_id":item['_id']},{"$set":{"tags":",".join(set(tags))}})
 
+def iqiyi_poster():
+    from Api.app.content import get_posters
+    contents = mongo_conn.contents.find({"iqiyi_tvId":{"$exists":True},"poster_merge":{"$exists":False}},no_cursor_timeout=True)
+    for c in contents:
+        p = get_posters(c=c,is_all=False)
+        for x in p:
+            ise = mongo_conn.posters.find({"url":x['url'],"content_id":x['content_id']})
+            print(ise.count())
+            if ise.count()!=0:
+                continue
+            _id = mongo_conn.posters.insert(x,check_keys=False)
+            print(x['content_id'],_id)
+        mongo_conn.contents.update_one({"_id":c['_id']},{"$set":{"poster_merge":"1"}})
+
 if __name__ == '__main__':
     '''
     数据带上目标网站来源id.
@@ -1096,7 +1110,8 @@ if __name__ == '__main__':
 
     # merge_douban_repeat_content()
     # merge_douban_tags()
-    merge_iqiyi_repeat_content()
+    # merge_iqiyi_repeat_content()
+    iqiyi_poster()
 
     # m.categories()  #清洗categories
     print(time.time()-t)
