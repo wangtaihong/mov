@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2018-06-25 15:43:44
+# @Date    : 2018-06-27 09:44:38
 # @Author  : taihong (taihong.wang@androidmov.com)
 # @Link    : http://example.org
 # @Version : $Id$
@@ -21,35 +21,44 @@ from PIL import Image
 
 
 def process():
-    path = u"E:/posters/"
+    path = u"E:/avatar/"
     while True:
-        p = rd.spop("posters")
+        p = rd.spop("stars")
+        if not p:
+        	return True
         task = json.loads(p)
-        im = requests_get(task['url'])
+        if task.get("avatar") and not task.get("img_url"):
+        	im = requests_get(task['avatar'])
+        elif not task.get("avatar") and task.get("img_url"):
+        	im = requests_get(task['img_url'])
+        else:
+        	print("----",p)
+        	continue
         #print("r.status_code:",r.status_code)
         #if r.status_code == 404 or r == False:
         if not im:
-            rd.sadd("posters_failed",p)
+            rd.sadd("avatar_failed",p)
             print("failed", p)
             continue
         #im = Image.open(r.raw)
-        file_name = "/".join([task.get("content_id"),"%s_%sx%s.jpg"%(task.get("content_id"),im.width,im.height)])
+        file_name = "/".join([task.get("_id"),"%s.jpg"%(task.get("_id"))])
         try:
         	os.makedirs(re.search('(.*/)',path+file_name).group(1))
         except Exception as e:
         	#print(str(e))
         	pass
         im.convert('RGB').save(path+file_name)
-        result = mongo_conn.posters.update_one({"_id":ObjectId(task['_id'])},{"$set":{"file_path":file_name}})
-        print("done--%s-%s"%(result.modified_count,path+file_name))
+        result = mongo_conn.stars.update_one({"_id":ObjectId(task['_id'])},{"$set":{"file_path":file_name}})
+        print("done-----%s-----%s"%(result.modified_count,path+file_name))
+        return
 
 
 def readtask():
-	posters = mongo_conn.posters.find({"file_path":{"$exists":False}},no_cursor_timeout=True)
-	for p in posters:
+	stars = mongo_conn.stars.find({"file_path":{"$exists":False}},no_cursor_timeout=True)
+	for p in stars:
 		p['_id'] = str(p['_id'])
 		print(p['_id'])
-		rd.sadd("posters", json.dumps(p))
+		rd.sadd("stars", json.dumps(p))
 
 
 def requests_get(url):

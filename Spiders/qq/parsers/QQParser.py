@@ -259,5 +259,7 @@ class QQParser(object):
             data.avatar = "http:"+avatar[0].get("src")
 
         data.qq_home_page = url
-        
+        if not data.name:
+            return False
+        data.created_at = time.time()
         return data.__dict__

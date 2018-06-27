@@ -272,7 +272,7 @@ class DoubanParser(object):
             return False
         imgUrl = page.xpath(u'//div[@class="pic"]/a[@class="nbg"]')
         if len(imgUrl) > 0:
-            data.img_url = imgUrl[0].get("href")
+            data.avatar = imgUrl[0].get("href")
         gender = page.xpath(u'//span[contains(text(),"性别")]/following::text()[1]')
         if len(gender):
             gender = re.sub('\n', '', gender[0])
@@ -339,5 +339,6 @@ class DoubanParser(object):
             data.intro = parse_simple("".join(intro))
         else:
             data.intro = parse_simple("".join(_intro))
-        
+        if not data.name:
+            return False
         return data.__dict__

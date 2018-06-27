@@ -265,6 +265,8 @@ class IqiyiParser(object):
             S.intro = "".join(page.xpath(u'//p[@class="introduce-info"]/text()'))
             S.intro = parse_simple(S.intro)
 
+        if not S.name:
+            return False
         S.created_at = time.time()
         return S.__dict__
 

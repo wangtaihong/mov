@@ -190,6 +190,8 @@ class SohuParser(object):
 			S.alias = ",".join([parse_simple(x) for x in alias[0].text.replace("/",",").split(',')])
 
 
+		if not S.name:
+			return False
 		S.created_at = time.time()
 		return S.__dict__
 

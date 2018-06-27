@@ -11,7 +11,6 @@ import jieba
 
 
 from bitarray import bitarray
-
 # 3rd party
 import mmh3
 import threading
