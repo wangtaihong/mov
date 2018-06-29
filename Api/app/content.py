@@ -52,9 +52,14 @@ def _get_content(_id):
             tags = tags + c[0].get("type").split(',')
         r['tags'] = ",".join(tags)
         # print(r['title'])
-        p = get_posters(c[0])
-        if p:
-            r["posterList"] = p
+        # p = get_posters(c[0])
+        # if p:
+        #     r["posterList"] = p
+        posters = mongo_conn.posters.find({"content_id":_id})
+        if posters.count()!=0:
+            r["posterList"] = []
+            for p in posters:
+                r["posterList"].append(parser_poster_fields(p))
         if c[0].get("directors_list"):
             r["directorsList"] = []
             for x in c[0].get("directors_list"):
@@ -110,7 +115,7 @@ def parser_poster_fields(s):
 
 def get_posters(c,is_all=True):
     posterList = []
-    if c.get("iqiyi_tvId") and c.get("starring") and c.get("directors"):
+    if not c.get("doubanid") and c.get("starring") and c.get("directors"):
         regx = {}
         regx["directors"] = re.compile(u"("+ "|".join(process_actor(parse_regx_char(c.get("directors"))).split(','))+")",re.IGNORECASE)
         regx['starring'] = re.compile(u"("+ "|".join(process_actor(parse_regx_char(c.get("starring"))).split(','))+")",re.IGNORECASE)
@@ -179,6 +184,15 @@ def get_posters(c,is_all=True):
                 posterList.append(parser_poster_fields(p))
     return posterList
 
+def merge_poster(c):
+    p = get_posters(c=c,is_all=False)
+    for x in p:
+        ise = mongo_conn.posters.find({"url":x['url'],"content_id":x['content_id']})
+        if ise.count()!=0:
+            continue
+        _id = mongo_conn.posters.insert(x,check_keys=False)
+        print(x['content_id'],_id)
+    mongo_conn.contents.update_one({"_id":c['_id']},{"$set":{"poster_merge":"1"}})
 
 def parser_contents_fields(s):
     _temp = {}

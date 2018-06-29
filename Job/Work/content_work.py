@@ -26,6 +26,7 @@ from Utils.request import requests_get, requests_post
 from Utils.utils import parse_regx_char, area_process, title_preprocess, title_preprocess_seed, process_actor, search_preprocess, check_title
 from DB.RedisClient import rd, rpop
 from DB.MongodbClient import mongo_conn
+from Api.app.content import merge_poster
 # from pymongo import MongoClient
 
 class ContentJob(object):
@@ -164,6 +165,7 @@ class ContentJob(object):
         """搜索到结果"""
         if data and data.get("_id"):
             """成功爬到数据"""
+            merge_poster(data)
             return self.after_mongo_succ(ObjectId(data['_id']),task)
         elif data==False:
             """百度已经搜索到影视结果，但是由于其他原因数据没有爬去完整"""
@@ -229,15 +231,6 @@ class ContentJob(object):
             tags = tags + dic.get("type").split(',')
         data['tags'] = ",".join(tags)
         return data
-
-    def get_posters(self,content_id,width='300',height="400"):
-        regx = {}
-        regx['content_id'] = re.compile(str(content_id),re.IGNORECASE)
-        regx['width'] = re.compile(width.replace('0',u"\d"),re.IGNORECASE)
-        regx['height'] = re.compile(height.replace('0',u"\d"),re.IGNORECASE)
-        posters = mongo_conn.posters.find(regx)
-        if len(posters):
-            pass
 
     def save_task_tocontents(self,task):
         data = dict()
