@@ -105,3 +105,7 @@ PROXY_HOST = 'http://127.0.0.1:5010/'
 
 content_work_task = 'content_work_task'
 content_work_task_failed = 'content_work_task_failed'
+
+
+
+image_v = "image_v"

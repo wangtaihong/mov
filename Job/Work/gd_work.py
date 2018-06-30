@@ -269,6 +269,33 @@ def producer():
     db_session.close()
     return True
 
+def producer_image_v():
+    """get image_v from gd cms_content"""
+    db_session = scoped_session(DBSession)
+    print(db_session)
+    # count = db_session.query(GDCmscontent).count()
+    maxid = db_session.query(func.max(GDCmscontent.id)).all()
+    print(maxid[0][0])
+    size = 500
+    cat = [u"电影",u"少儿",u"动漫",u'动画',u'动画片',u'剧集',u'连续剧'u'青春'u'综艺'u'纪录片',u'儿童',u'高清',u'电视剧']
+    for x in xrange(1,maxid[0][0]/size+2):
+        contents = db_session.query(GDCmscontent).filter((GDCmscontent.image_v!=None)&(GDCmscontent.id>=size*(x-1))&(GDCmscontent.id<=size*x)).all()
+        print(size*x)
+        for item in contents:
+            data = {}
+            data['code'] = item.__dict__["code"]
+            data['image_v'] = item.__dict__["image_v"]
+            c = mongo_conn.contents.find({'relationship':{'$elemMatch':{'mediaId':item.__dict__["code"],"platform":"gd"}}})
+            if c.count()==0:
+                continue
+            for x in c:
+                if not x.get("category") in cat:
+                    continue
+                data['content_id'] = str(x['_id'])
+                print(data)
+                rd.sadd(config.image_v,json.dumps(data))
+    db_session.close()
+    return True
 
 
 if __name__ == '__main__':
