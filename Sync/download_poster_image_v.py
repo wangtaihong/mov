@@ -8,7 +8,7 @@
 from gevent import monkey; monkey.patch_all()
 import os
 import threading
-import redis
+import redis,time
 import requests, json, re
 import gevent, sys
 sys.path.append('../')
@@ -25,8 +25,9 @@ def process():
     while True:
         p = rd.spop(config.image_v)
         if not p:
-            print("done!")
-            return
+            print("done! sleep 6s")
+            time.sleep(6)
+            continue
         task = json.loads(p)
         im = requests_get(u'http://meeting.itvfocus.com/'+task['image_v'])
         if not im:

@@ -35,6 +35,11 @@ class Douban(object):
             iid = re.search(u'(\d{5,})',urls['url'])
             if iid:
                 url = u'https://movie.douban.com/subject/{}/'.format(iid.group(1))
+        m = re.search(u'(\d*)',url)
+        if m:
+            exists = self.crawl_before(doubanid=m.group(1))
+            if exists:
+                return exists
         r = requests_get(url=url,headers=headers)
         data = self.parsers.vdetail_parser(r)
         if not data or not data.get("doubanid"):
@@ -47,6 +52,13 @@ class Douban(object):
         if not data or not data.get("title"):
             return False
         return self.save(data)
+
+    def crawl_before(self,doubanid):
+        c = mongo_conn.contents.find({"doubanid":doubanid})
+        if c.count() > 0:
+            c['_id'] = str(c['_id'])
+            return c
+        return None
 
     def crawl_star(self,url):
         print(url)

@@ -38,6 +38,9 @@ class Sohu(object):
         playlistid = self.parser.playlistId_parser(r)
         if not playlistid:
             data = self.parser.vdetail_parser(r)
+        exists = self.crawl_before(playlistid)
+        if exists:
+            return exists
         info = self.vinfo(playlistid=playlistid)
         if not info:
             return False
@@ -48,6 +51,14 @@ class Sohu(object):
         data = self.save(data)
         self.after_save(data)
         return data
+
+    def crawl_before(self,playlistid):
+        c = mongo_conn.contents.find({"sohu_playlistid":playlistid})
+        if c.count() > 0:
+            c['_id'] = str(c['_id'])
+            return c
+        else:
+            return None
 
     def crawl_star(self,url):
         r = requests_get(url=url,headers=headers)

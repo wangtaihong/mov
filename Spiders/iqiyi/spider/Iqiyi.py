@@ -69,6 +69,9 @@ class Iqiyi(object):
         print("albumId_tvId", albumId_tvId)
         if not albumId_tvId:
             return {"status": False, 'urls': urls}
+        exists = self.before_crawl(albumId_tvId['tvId'])
+        if exists:
+            return exists
         info = self.vinfo(tvId=albumId_tvId.get("tvId"))
         if not info:
             return False
@@ -116,6 +119,14 @@ class Iqiyi(object):
         data = self.save(data)
         self.after_save(data)
         return data
+
+    def before_crawl(self,tvId):
+        c = mongo_conn.contents.find({"iqiyi_tvId":tvId})
+        if c.count() > 0:
+            c['_id'] = str(c['_id'])
+            return c
+        else:
+            return None
 
     def check_crawl_star(self,data):
     	if not data:
