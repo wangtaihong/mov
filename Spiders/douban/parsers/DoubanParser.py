@@ -259,7 +259,7 @@ class DoubanParser(object):
             return {"data": data, "next": nextpage[0].get("href")}
         return {"data": data}
 
-    def parse_star(self,r):
+    def parse_star(self,r,url):
         try:
             page = etree.HTML(r)
         except Exception as e:
@@ -270,6 +270,9 @@ class DoubanParser(object):
             data.name = parse_simple(name[0].text)
         else:
             return False
+        m = re.search(u'celebrity/(\d*)/',url)
+        if m:
+            data.doubanid = m.group(1)
         imgUrl = page.xpath(u'//div[@class="pic"]/a[@class="nbg"]')
         if len(imgUrl) > 0:
             data.avatar = imgUrl[0].get("href")

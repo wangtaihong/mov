@@ -63,7 +63,7 @@ class Douban(object):
     def crawl_star(self,url):
         print(url)
         r = requests_get(url=url)
-        return self.parsers.parse_star(r)
+        return self.parsers.parse_star(r,url)
 
     def check_crawl_star(self,data):
         if data==None:
