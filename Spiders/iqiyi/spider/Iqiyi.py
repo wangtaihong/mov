@@ -14,7 +14,8 @@ sys.setdefaultencoding('utf8')
 sys.path.append('../')
 from Spiders.setting import headers
 from Spiders.iqiyi.parsers.IqiyiParser import IqiyiParser
-from Utils.sim_content import sim_content
+# from Utils.sim_content import sim_content
+from Api.app.content import merge_poster
 from DB.MongodbClient import mongo_conn
 sys.path.append('./')
 
@@ -450,7 +451,4 @@ class Iqiyi(object):
             return str(mongo_conn.iqiyi_stars.insert(star, check_keys=False))
 
     def after_save(self,data):
-        p = sim_content(data)
-        if p:
-            for x in p:
-                mongo_conn.posters.insert(x,check_keys=False)
+        merge_poster(data)
