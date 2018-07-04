@@ -289,8 +289,6 @@ def producer_image_v():
             if c.count()==0:
                 continue
             for x in c:
-                if not x.get("category") in cat:
-                    continue
                 data['content_id'] = str(x['_id'])
                 print(data)
                 rd.sadd(config.image_v,json.dumps(data))

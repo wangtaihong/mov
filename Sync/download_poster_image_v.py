@@ -50,6 +50,8 @@ def process():
             continue
         task['file_name'] = file_name
         task['url'] = task['image_v']
+        if task.get("_id"):
+            del task['_id']
         _id = mongo_conn.posters.insert(task,check_keys=False)
         print(task['content_id'],_id,file_name)
 

@@ -46,3 +46,25 @@ source venv/bin/activate
 
 deactivate it:
 deactivate
+
+
+import requests, requests.utils, pickle
+session = requests.session()
+# Make some calls
+with open('somefile', 'w') as f:
+    pickle.dump(requests.utils.dict_from_cookiejar(session.cookies), f)
+
+with open('somefile') as f:
+    cookies = requests.utils.cookiejar_from_dict(pickle.load(f))
+    session = requests.session()
+    session.cookies = cookies
+
+
+db.getCollection('contents').find({"source":"IPTV","category":{"$in":["电影","电视剧","动漫","动画片","综艺","少儿","剧集",null]},"$or":["directors":{"$ne":null},"starring":{"$nin":[null,1]]}})
+
+
+yum install -y p7zip
+7za x iptvcms.zip -o/home/Ameeting/iptvcms2/
+7za x sx_posters.zip -o/web/data/test/EPG_Picture
+cp -frp iptvcms/* iptvcms2/iptvcms/
+\cp -frp iptvcms/* iptvcms2/iptvcms/
