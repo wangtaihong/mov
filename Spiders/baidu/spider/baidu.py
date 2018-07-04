@@ -23,6 +23,8 @@ from Spiders.sohu.spider.Sohu import Sohu
 # from Spiders.youku.tasks.go_detail_list_task import go_detail_list_task
 sys.path.append('./')
 
+import requests, requests.utils, pickle
+
 headers = None
 
 class Baidu(object):

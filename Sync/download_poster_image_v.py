@@ -21,7 +21,7 @@ from PIL import Image
 
 
 def process():
-    path = u"E:/image_v/"
+    path = u"E:/posters/"
     while True:
         p = rd.spop(config.image_v)
         if not p:
@@ -29,7 +29,8 @@ def process():
             time.sleep(6)
             continue
         task = json.loads(p)
-        im = requests_get(u'http://meeting.itvfocus.com/'+task['image_v'])
+        # im = requests_get(u'http://meeting.itvfocus.com/'+task['image_v'])
+        im = requests_get(u'http://183.59.160.50:8082/EPG/jsp/images/universal/film/poster/'+task['image_v'])
         if not im:
             rd.sadd("image_v_failed",p)
             print("failed", p)

@@ -161,7 +161,7 @@ class ContentJob(object):
         baidu = Baidu(wd=search_preprocess(k))
         data = baidu.v_search()
         print("-------------------------------------------------------------------------")
-        print(json.dumps(data))
+        # print(json.dumps(data))
         """搜索到结果"""
         if data and data.get("_id"):
             """成功爬到数据"""
@@ -238,8 +238,8 @@ class ContentJob(object):
         data['category'] = task.get("contentType")
         data['title'] = task.get("contentName")
         data['summary'] = task.get("contentDetail")
-        data['directors'] = task.get("director")
-        data['starring'] = task.get("actor")
+        data['directors'] = process_actor(task.get("director"))
+        data['starring'] = process_actor(task.get("actor"))
         data['language'] = task.get("language")
         data['year'] = task.get("year")
         data['area'] = task.get("area")

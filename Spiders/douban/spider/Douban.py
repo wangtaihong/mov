@@ -61,7 +61,13 @@ class Douban(object):
         return None
 
     def crawl_star(self,url):
-        print(url)
+        m = re.search(u'com/celebrity/(\d*)/',url)
+        if m:
+            exists = mongo_conn.stars.find({"doubanid":m.group(1)})
+            if exists.count()>0:
+                r = exists[0]
+                r['_id'] = str(r['_id'])
+                return r
         r = requests_get(url=url)
         return self.parsers.parse_star(r,url)
 
@@ -273,6 +279,9 @@ class Douban(object):
         if data.get("poster"):
             for x in data.get("poster"):
                 x['content_id'] = data['_id']
+                exists = mongo_conn.posters.find({"content_id":x['content_id'],"url":x['url']})
+                if exists.count()>0:
+                    continue
                 _tempid = mongo_conn.posters.insert(x,check_keys=False)
                 print(_tempid)
                 if x.get("_id"):
@@ -280,6 +289,9 @@ class Douban(object):
         return data
 
     def save_star(self,star):
+        if star.get("_id"):
+            print("douban star_id:%s"%star.get("_id"))
+            return star.get("_id")
         try:
             query = {}
             query['name'] = star["name"]
@@ -306,6 +318,9 @@ class Douban(object):
             return str(mongo_conn.stars.insert(star,check_keys=False))
 
     def save_douban_star(self,star):
+        if star.get("_id"):
+            print("douban star_id:%s"%star.get("_id"))
+            return star.get("_id")
         try:
             query = {}
             query['name'] = star["name"]

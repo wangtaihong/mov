@@ -120,8 +120,10 @@ def language_process(language):
 
 
 def process_actor(doc):
+    if not doc:
+        return doc
     chars = [u' / ', u' | ', u'|', u'/', u'，',
-             u'不详', u'未知', u'...', u'其他', u'佚名']
+             u'不详', u'未知', u'...', u'其他', u'佚名',u"\d*"]
     for x in chars:
         doc = doc.replace(x, '')
     return doc.strip(',').strip(' ').strip(',')
@@ -139,10 +141,11 @@ def mictime_to_ymd(mtime):
     return time.strftime('%Y-%m-%d', time.localtime(mtime/1000))
 
 def search_preprocess(doc):
+    chars_resub_pre = set([u'第\d*集.*',u'\d{4,}\w'])
     chars_resub = set([u'(国语版\w*\d*)',u'独享版',u'精彩看点', u'\d{2}版',u'(@[\u4e00-\u9fa5]*)',u'(@.* )', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', 
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',
                    u'(高清\w*\d*)', u'(英语版\w*\d*)', u'(预告片\w*\d*)', u'(.{2}卫视)', u'(.{2}电视台)', u'(\d{1,}-\d{1,})',
-                   u'(热剧\w*\d*)',u'(影讯\w*\d*)',u'\d*K',u'\d*k',
+                   u'(热剧\w*\d*)',u'(影讯\w*\d*)',u'\d*K',u'\d*k',u'国语译制',
                    u'(第.{1,}集)', u"(\d{5,})", u"\[.*?(\])", u"\(.*?(\))", u"（.*?(）)", u"【.*?(】)", u'HD', u'-',u'\d*NEW',u'\d*new', u"(\d{5,})"])
     ji = re.search(u'(第(.{1})季)', doc)
     bu = re.search(u'(第(.{1})部)', doc)
@@ -150,6 +153,8 @@ def search_preprocess(doc):
         doc = doc.replace(ji.group(1), ji.group(2))
     if bu:
         doc = doc.replace(bu.group(1), bu.group(2))
+    for c in chars_resub_pre:
+        doc = re.sub(c, '', doc)
     for c in chars_resub:
         doc = re.sub(c, '', doc)
     doc = re.sub(u"(\d{5,})", '', doc)
@@ -166,10 +171,10 @@ def split_space(r):
 def check_title(title):
     regx_news = u'新闻|直播|演播|录播|专题|开幕|两会|联播|党委|民生|影讯|资讯|习近平|习主席|总书记|贯彻|国务院|实事|采访|高考|中考|学生|央视|卫视|电视台|记者|主播|宣传部|省委|国务院|市委|法治'
     regx_yule = u'娱闻|八卦|娱乐|文娱'
-    regx_music = u'音乐|MV|演唱会|卡拉OK|伴奏|歌曲|儿歌|纯音乐'
-    regx_edu = u'新东方|初中|高中|高一|高二|中学|数学|物理|教育|习题|古诗|数学|语文|方程|认读|拼音|教学|学习|舞蹈|练习|年级|化学|地理|奥数|高数|线性|曲线|圆周|乘法|除法'
+    regx_music = u'音乐|MV|演唱会|卡拉OK|伴奏|歌曲|儿歌|纯音乐|卡拉ok'
+    regx_edu = u'新东方|初中|高中|高一|高二|中学|数学|物理|教育|习题|古诗|数学|语文|方程|认读|拼音|教学|学习|舞蹈|练习|年级|化学|地理|奥数|高数|线性|曲线|圆周|乘法|除法|混合运算'
     regx_pe = u'世界杯|体育|NBA|奥运|马术|国足|库里|锦标赛|冰壶|击剑'
-    regx_life = u'广场舞|生活'
+    regx_life = u'广场舞|生活|瑜伽|健身|肚皮舞'
     if  re.search(regx_news,title):
         return u'新闻'
     if re.search(regx_yule,title):

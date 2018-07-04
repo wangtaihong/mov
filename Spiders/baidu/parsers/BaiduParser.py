@@ -59,8 +59,8 @@ class BaiduParser(object):
 			for con in container:
 				strdiv = etree.tostring(con, encoding='unicode')
 				# douban = re.search(u"豆瓣",strdiv)
-				douban_url = re.search(u'movie\.douban\.com/subje',strdiv)
-				_douban_url = re.search(u'douban\.com/doubana',strdiv)
+				douban_url = re.search(u'movie\.douban\.com/',strdiv)
+				_douban_url = re.search(u'douban\.com/',strdiv)
 				
 				# baidu = re.search(u"百度视频",strdiv)
 				baidu_url = re.search(u'v\.baidu\.com\/movie\/',strdiv)
@@ -114,19 +114,6 @@ class BaiduParser(object):
 					elif len(_r_url)>0:
 						data["r_url"] = _r_url[0].text
 					re_data.append(data)
-
-				# if youku:
-				# 	url = con.xpath(u'.//h3/a')
-				# 	r_url = con.xpath(u'.//*[@class="c-showurl"]')
-				# 	_r_url = con.xpath(u'.//div[@class="g"]')
-				# 	data = {}
-				# 	if len(url):
-				# 		data["url"] = url[0].get("href")
-				# 	if len(r_url):
-				# 		data["r_url"] = "youku.com"
-				# 	elif len(_r_url)>0:
-				# 		data["r_url"] = "youku.com"
-				# 	re_data.append(data)
 
 				if douban_url:
 					url = con.xpath(u'.//h3/a')

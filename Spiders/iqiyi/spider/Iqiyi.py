@@ -67,7 +67,7 @@ class Iqiyi(object):
         r = requests_get(url=urls['url'], headers=headers)
         albumId_tvId = self.parser.parse_albumId_tvId(r=r, url=urls['url'])
         print("albumId_tvId", albumId_tvId)
-        if not albumId_tvId:
+        if not albumId_tvId or not albumId_tvId.get("tvId"):
             return {"status": False, 'urls': urls}
         exists = self.before_crawl(albumId_tvId['tvId'])
         if exists:

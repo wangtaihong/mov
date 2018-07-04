@@ -29,7 +29,7 @@ def get(_id=None):
     '''作业任务'''
     if _id:
         r = _get_content(_id)
-        return {"status":"1","msg":u"success","data":r}
+        return {"status":"1","msg":u"success","data":r,"metaId":_id}
     else:
         return {"status":"-1","msg":u"error,参数错误"}
 
