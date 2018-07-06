@@ -122,8 +122,9 @@ def language_process(language):
 def process_actor(doc):
     if not doc:
         return doc
-    chars = [u' / ', u' | ', u'|', u'/', u'，',
-             u'不详', u'未知', u'...', u'其他', u'佚名',u"\d*"]
+    chars = [u'不详', u'未知', u'...', u'其他', u'佚名',u"\d*"]
+    for x in [u' / ', u' | ', u'|', u'/',u'，']:
+        doc = re.sub(x,u",",doc)
     for x in chars:
         doc = doc.replace(x, '')
     return doc.strip(',').strip(' ').strip(',')
@@ -141,6 +142,10 @@ def mictime_to_ymd(mtime):
     return time.strftime('%Y-%m-%d', time.localtime(mtime/1000))
 
 def search_preprocess(doc):
+    """以 第2集开头的"""
+    doc = re.sub(u"(^ *第\d{1,}集)","",doc)
+    """以第2集.*结尾的，第2集不再开头"""
+    """以一串数字开头的"""
     chars_resub_pre = set([u'第\d*集.*',u'\d{4,}\w'])
     chars_resub = set([u'(国语版\w*\d*)',u'独享版',u'精彩看点', u'\d{2}版',u'(@[\u4e00-\u9fa5]*)',u'(@.* )', u'(原声版\w*\d*)', u'(TV版\w*\d*)', u'(DVD版\w*\d*)', 
                    u'(粤语版\w*\d*)', u'(未删减版\w*\d*)', u'(会员抢先看\w*\d*)', u'(会员版\w*\d*)', u'(标清\w*\d*)', u'(超清\w*\d*)',

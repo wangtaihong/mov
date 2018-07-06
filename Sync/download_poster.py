@@ -22,7 +22,7 @@ from PIL import Image
 requests.packages.urllib3.disable_warnings()
 
 def process():
-    path = u"E:/data/posters_07_02/"
+    path = u"E:/data/posters_02/"
     while True:
         p = rd.spop("posters")
         if not p:

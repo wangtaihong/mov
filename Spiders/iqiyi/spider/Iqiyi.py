@@ -14,8 +14,6 @@ sys.setdefaultencoding('utf8')
 sys.path.append('../')
 from Spiders.setting import headers
 from Spiders.iqiyi.parsers.IqiyiParser import IqiyiParser
-# from Utils.sim_content import sim_content
-from Api.app.content import merge_poster
 from DB.MongodbClient import mongo_conn
 sys.path.append('./')
 
@@ -117,9 +115,7 @@ class Iqiyi(object):
 
         if not data or not data.get("title"):
             return False
-        data = self.save(data)
-        self.after_save(data)
-        return data
+        return self.save(data)
 
     def before_crawl(self,tvId):
         c = mongo_conn.contents.find({"iqiyi_tvId":tvId})
@@ -449,6 +445,3 @@ class Iqiyi(object):
                 return str(mongo_conn.iqiyi_stars.insert(star, check_keys=False))
         except Exception as e:
             return str(mongo_conn.iqiyi_stars.insert(star, check_keys=False))
-
-    def after_save(self,data):
-        merge_poster(data)

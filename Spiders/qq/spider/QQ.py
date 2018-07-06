@@ -14,8 +14,6 @@ sys.path.append('../')
 from Spiders.setting import headers
 from Spiders.qq.parsers.QQParser import QQParser
 from DB.MongodbClient import mongo_conn
-# from Utils.sim_content import sim_content
-from Api.app.content import merge_poster
 sys.path.append('./')
 
 headers = None
@@ -40,7 +38,6 @@ class QQ(object):
         data = self.check_crawl_star(data)
         if not data or not data.get("title"):
             return False
-        self.after_save(data)
         return self.save(data)
 
     # @staticmethod
@@ -296,6 +293,3 @@ class QQ(object):
                 return str(mongo_conn.qq_stars.insert(star,check_keys=False))
         except Exception as e:
             return str(mongo_conn.qq_stars.insert(star,check_keys=False))
-
-    def after_save(self,data):
-        merge_poster(data)

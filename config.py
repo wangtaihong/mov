@@ -109,3 +109,4 @@ content_work_task_failed = 'content_work_task_failed'
 
 
 image_v = "image_v"
+posters = "posters"

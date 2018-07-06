@@ -48,7 +48,7 @@ def process():
         ise = mongo_conn.posters.find({"file_path":file_name,"content_id":task['content_id']})
         if ise.count()!=0:
             continue
-        task['file_name'] = file_name
+        task['file_path'] = file_name
         task['url'] = task['image_v']
         if task.get("_id"):
             del task['_id']

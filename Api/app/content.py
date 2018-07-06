@@ -17,13 +17,14 @@ import uuid
 
 sys.path.append('../../../')
 from DB.MongodbClient import mongo_conn, mongo_zydata
+from DB.RedisClient import rd, rpop
 sys.path.append('./')
 from bson.objectid import ObjectId
 from Utils.utils import parse_regx_char, area_process, title_preprocess, title_preprocess_seed, process_actor, search_preprocess, check_title,split_space,title_preprocess_mongosearch
 
-# sys.path.append('../../')
-# import config
-# sys.path.append('./')
+sys.path.append('../../')
+import config
+sys.path.append('./')
 
 def get(_id=None):
     '''作业任务'''
@@ -192,7 +193,21 @@ def merge_poster(c):
             continue
         _id = mongo_conn.posters.insert(x,check_keys=False)
         print(x['content_id'],_id)
+    try:
+        print(c['_id'])
+    except Exception as e:
+        print(c)
+    check_posters_totask(c)
     mongo_conn.contents.update_one({"_id":c['_id']},{"$set":{"poster_merge":"1"}})
+
+def check_posters_totask(c):
+    if not c.get("_id"):
+        return c
+    posters = mongo_conn.posters.find({"content_id":str(c['_id']),"file_path":{"$exists":False}})
+    for p in posters:
+        p['_id'] = str(p['_id'])
+        rd.sadd(config.posters,json.dumps(p))
+    return c
 
 def parser_contents_fields(s):
     _temp = {}

@@ -15,8 +15,6 @@ sys.setdefaultencoding('utf8')
 sys.path.append('../')
 from Spiders.setting import headers
 from Spiders.sohu.parsers.SohuParser import SohuParser
-# from Utils.sim_content import sim_content
-from Api.app.content import merge_poster
 from DB.MongodbClient import mongo_conn
 sys.path.append('./')
 
@@ -49,9 +47,7 @@ class Sohu(object):
         data = self.check_crawl_star(data)
         if data==False:
             return False
-        data = self.save(data)
-        self.after_save(data)
-        return data
+        return self.save(data)
 
     def crawl_before(self,playlistid):
         c = mongo_conn.contents.find({"sohu_playlistid":playlistid})
@@ -360,6 +356,3 @@ class Sohu(object):
                 return str(mongo_conn.sohu_stars.insert(star, check_keys=False))
         except Exception as e:
             return str(mongo_conn.sohu_stars.insert(star, check_keys=False))
-
-    def after_save(self,data):
-        merge_poster(data)
